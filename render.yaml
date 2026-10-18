@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: gwc-website
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    plan: starter
+    disk:
+      name: gwc-persistent-data
+      mountPath: /var/data
+      sizeGB: 1
