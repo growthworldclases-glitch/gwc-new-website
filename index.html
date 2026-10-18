@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Growth World Classes</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f6f9; color: #333; }
+  .section { padding: 40px 20px; }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+  .panel { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+  .dashhead { margin-bottom: 20px; }
+  .primary { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+  .primary:hover { background: #0056b3; }
+</style>
+</head>
+<body>
+
+<div id="modalRoot"></div>
+<div id="dashboardRoot"></div>
+
+<script>
+// Google Sheets + Drive backend. Deploy Code.gs as a Google Apps Script web app,
+// then paste its /exec URL into GWC_API_URL below. Existing UI and app features retained.
+const GWC_API_URL = 'https://script.google.com/macros/s/AKfycbwwaPB77rTfnAp8R_oVWVx1jmMGfK-V4LCHmtBlvTQVe8EctydRiE3Ii5q0axzhf-xf/exec';
+let gwcSyncTimer = null, gwcApplyingRemote = false, gwcSyncReady = false;
+
+async function gwcApi(action, payload = {}) {
+    if (!GWC_API_URL || GWC_API_URL.includes('PASTE_YOUR')) throw new Error('Google Apps Script URL setup nahi hua.');
+    const body = new URLSearchParams({ action, payload: JSON.stringify(payload) });
+    const response = await fetch(GWC_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }, body });
+    if (!response.ok) throw new Error('Google server response: ' + response.status);
+    const result = await response.json();
+    if (!result.ok) throw new Error(result.error || 'Google backend error');
+    return result.data;
+}
+
+function scheduleGoogleSave() {
+    if (gwcApplyingRemote || !gwcSyncReady) return;
+    if (gwcSyncTimer) clearTimeout(gwcSyncTimer);
+    gwcSyncTimer = setTimeout(async () => {
+        try {
+            if (!GWC_API_URL || GWC_API_URL.includes('PASTE_YOUR')) {
+                console.warn('Google Apps Script URL setup required; local mode only.');
+                return;
+            }
+            gwcApplyingRemote = true;
+            let currentData = localStorage.getItem('gwc_professional_v6');
+            if (currentData) {
+                await gwcApi('save', { state: JSON.parse(currentData) });
+            }
+        } catch (err) {
+            console.error('Google sync save failed:', err);
+        } finally {
+            gwcApplyingRemote = false;
+        }
+    }, 2000);
+}
+
+async function startGwcGoogleSync() {
+    try {
+        if (!GWC_API_URL || GWC_API_URL.includes('PASTE_YOUR')) {
+            gwcSyncReady = true;
+            return;
+        }
+        let remoteState = await gwcApi('load');
+        if (remoteState && typeof remoteState === 'object') {
+            localStorage.setItem('gwc_professional_v6', JSON.stringify(remoteState));
+        }
+        gwcSyncReady = true;
+        if (typeof renderPublic === 'function') renderPublic();
+    } catch (err) {
+        console.warn('Google sync load failed, using local fallback:', err);
+        gwcSyncReady = true;
+    }
+}
+
+function allocate(role) {
+    let chars = '23456789abcdefghjkmnpqrstuvwxyz';
+    let username = role.substring(0, 3) + Math.floor(1000 + Math.random() * 9000);
+    let password = '';
+    for (let i = 0; i < 6; i++) password += chars.charAt(Math.floor(Math.random() * chars.length));
+    return { username, password };
+}
+
+function id() {
+    return '_' + Math.random().toString(36).substr(2, 9);
+}
+
+function modal(content) {
+    document.getElementById('modalRoot').innerHTML = `<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;"><div class="panel" style="max-width:500px;width:100%;">${content}<button onclick="closeModal()" class="primary" style="margin-top:10px;">Close</button></div></div>`;
+}
+
+function closeModal() {
+    document.getElementById('modalRoot').innerHTML = '';
+}
+
+function renderPublic() {
+    let r = document.getElementById('dashboardRoot');
+    if (r) r.innerHTML = `<div class="panel"><h2>Growth World Classes</h2><p>Welcome to the Portal.</p></div>`;
+}
+
+function teacherFor(classNo, section) {
+    return null;
+}
+
+function money(amt) {
+    return '₹' + (amt || 0);
+}
+
+function logout() {
+    location.reload();
+}
+
+function createSubadmin() {
+    let cr = allocate('subadmin');
+    state.users.push({ id: id(), role: 'subadmin', name: 'Subadmin', mobile: '', username: cr.username, password: cr.password, active: true });
+    save();
+    renderDashboard();
+}
+
+function assignAdmission(sid) {
+    let s = state.students.find(x => x.id === sid);
+    if (!s) return;
+    let opts = state.courses;
+    if (!opts.length) { alert('Please create a course first.'); return; }
+    modal(`<h3>Assign Course</h3><form onsubmit="saveAssignment(event,'${sid}')"><div class="field"><label>Select Course</label><select name="courseId" required>${opts.map(c => `<option value="${c.id}">Class ${c.classNo} · ${c.subsection} ·${c.title}</option>`).join('')}</select></div><button class="primary" style="width:100%;margin-top:14px">Assign & Issue Login</button></form>`);
+}
+
+function saveAssignment(e, sid) {
+    e.preventDefault();
+    let f = new FormData(e.target), s = state.students.find(x => x.id === sid), c = state.courses.find(x => x.id === f.get('courseId'));
+    if (!s || !c) return;
+    let cr = allocate('student');
+    let u = { id: id(), role: 'student', name: s.name, mobile: s.mobile, username: cr.username, password: cr.password, active: true };
+    state.users.push(u);
+    s.courseId = c.id;
+    s.userId = u.id;
+    s.status = 'active';
+    save();
+    closeModal();
+    renderDashboard();
+    alert('Assigned! Student Login ID: ' + u.username + ' Password: ' + u.password);
+}
+
+function viewSlip(sid) {
+    let s = state.students.find(x => x.id === sid);
+    if (s?.slip) modal(`<h3>Payment Slip</h3><a href="${esc(s.slip)}" download="${esc(s.slipName || 'payment-slip')}">Download / Open Payment Slip</a><div style="margin-top:12px"><img src="${esc(s.slip || '')}" style="max-width:100%"></div>`);
+}
+
+function sendStudentWA(sid) {
+    let s = state.students.find(x => x.id === sid), u = state.users.find(x => x.id === s?.userId);
+    if (s && u) {
+        window.open(`https://wa.me/91${s.mobile}?text=` + encodeURIComponent(`Namaste ${s.name}, GWC login ID: ${u.username}, Password: ${u.password}`));
+    }
+}
+
+function deactivateUser(uid) {
+    let u = state.users.find(x => x.id === uid);
+    if (u) { u.active = false; save(); renderDashboard(); }
+}
+
+function removeStudent(sid) {
+    if (confirm('Remove this student/admission request?')) {
+        state.students = state.students.filter(x => x.id !== sid);
+        save();
+        renderDashboard();
+    }
+}
+
+async function uploadBrand(e, kind) {
+    e.preventDefault();
+    let file = new FormData(e.target).get('file');
+    try {
+        if (!file || !file.size) throw new Error('File select karein.');
+        if (file.size > 1000000) throw new Error('Maximum file size 1MB hai.');
+        const data = await readFile(file, 1000000);
+        if (GWC_API_URL && !GWC_API_URL.includes('PASTE_YOUR')) {
+            const uploaded = await gwcApi('upload', { name: file.name, mimeType: file.type, data });
+            state.settings[kind] = uploaded.url;
+        } else {
+            state.settings[kind] = data;
+            alert('Abhi local preview save hoga. Cloud upload ke liye Apps Script URL configure karein.');
+        }
+        save();
+        renderDashboard();
+    } catch (err) {
+        alert('Upload nahi hua: ' + err.message);
+    }
+}
+
+function deleteBrand(kind) {
+    state.settings[kind] = '';
+    save();
+    renderDashboard();
+}
+
+function changeAdmin(e) {
+    e.preventDefault();
+    let f = new FormData(e.target);
+    if (f.get('current') !== state.admin.password) { alert('Current password is incorrect.'); return; }
+    if (f.get('password') !== f.get('confirm')) { alert('New passwords do not match.'); return; }
+    state.admin.username = f.get('username');
+    state.admin.password = f.get('password');
+    save();
+    alert('Updated. Please log in again.');
+    logout();
+}
+
+function exportCsv() {
+    let rows = [['Time', 'Actor', 'Action', 'Detail'], ...state.audit.map(a => [a.at, a.actor, a.action, a.detail])];
+    let csv = rows.map(row => row.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\r\n');
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+    a.download = 'gwc-audit.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+function renderTeacher(r) {
+    r.innerHTML = `<div class="dashhead"><h1>Teacher Portal</h1></div><div class="panel"><p>Welcome teacher!</p><p>Class and homework management features need to be connected before classroom use.</p></div>`;
+}
+
+function renderStudent(r) {
+    let s = state.students.find(x => x.userId === current.id), c = s && state.courses.find(x => x.id === s.courseId), t = c && teacherFor(c.classNo, c.section);
+    r.innerHTML = `<div class="dashhead"><h1>My Course</h1></div>` + (c ? `<div class="panel"><h3>${esc(c.title)}</h3><p>Teacher: ${esc(t?.name || 'Assigned soon')}</p>${t?.meetUrl ? `<a class="primary btn" href="${esc(t.meetUrl)}" target="_blank" rel="noopener">Join Class Meet</a>` : ''}<p>Monthly fee: ${money(c.fee)}</p></div>` : `<div class="panel"><p>Awaiting admin verification and course assignment.</p></div>`);
+}
+
+function renderSubadmin(r) {
+    r.innerHTML = `<div class="panel"><h2>Subadmin Portal</h2><p>Sub-admin permissions and management screens need to be implemented before use.</p></div>`;
+}
+
+renderPublic();
+startGwcGoogleSync();
+</script>
+</body>
+</html>

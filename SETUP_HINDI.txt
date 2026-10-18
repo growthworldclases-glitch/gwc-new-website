@@ -1,0 +1,24 @@
+GWC WEBSITE — GOOGLE SHEETS + GOOGLE DRIVE SETUP
+
+Is ZIP mein index.html (aapke existing HTML app ka backend-adapted version), Code.gs (Google Apps Script backend), aur yeh guide hai.
+
+IMPORTANT: Google account ki permission ke bina cloud backend auto-deploy nahi ho sakta. Pehle ek baar setup zaroori hai.
+
+1) Google Apps Script kholein: https://script.google.com/
+2) New project banayein.
+3) Code.gs ka poora code wahan paste karein (purana sample code hata dein) aur Save karein.
+4) Left side Project Settings / General settings mein timezone Asia/Kolkata rakh sakte hain.
+5) Deploy > New deployment > type “Web app”.
+6) Execute as: “Me”. Who has access: “Anyone” (website ke public backend calls ke liye zaroori). Deploy dabayein aur Google permissions allow karein.
+7) Jo Web app URL /exec par khatam hota hai, use copy karein.
+8) index.html mein GWC_API_URL='PASTE_YOUR_APPS_SCRIPT_WEB_APP_EXEC_URL_HERE' ko apne /exec URL se replace karein.
+9) index.html ko GitHub repository mein upload karein. Repo root mein index.html hona chahiye.
+10) Render par New > Static Site > GitHub repo select karein; Build Command blank, Publish Directory “.” rakhein; deploy karein.
+11) Website khol kar ek test course ya logo update karein, phir Google Drive mein GWC_Website_Uploads folder aur Google Sheet “GWC Website Data” check karein.
+
+DATA / SECURITY NOTE
+- Yeh backend website ka state JSON Google Drive mein save karta hai aur save/upload log Google Sheet mein rakhta hai.
+- Uploads (logo, poster, admission slip) Drive mein save hote hain. Current app mein login credentials browser-side state mein hain; isliye public web app deployment ko production-grade secure authentication na samjhein. Sensitive student data ke liye backend-side authentication/authorization aur access rules ki separate hardening zaroori hai.
+- Upload files “Anyone with the link can view” par set hoti hain taaki static website poster dikha sake. Payment slips mein personal information ho sakti hai; public website par istemal se pehle is risk ko samjhein.
+- Google Apps Script URL configure hone tak website local browser storage mein hi kaam karegi; cloud sync active nahi hoga.
+- Is package mein existing UI/source workflow ko preserve karne ki koshish ki gayi hai, lekin Apps Script deployment ke baad real Google account par end-to-end test karna zaroori hai.
