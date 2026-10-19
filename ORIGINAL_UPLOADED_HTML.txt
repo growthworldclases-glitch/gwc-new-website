@@ -1,0 +1,2 @@
+Original uploaded file: GWC_index_with_Supabase_config.html
+Keep your original local copy separately; this package does not modify your uploaded source.
