@@ -1,0 +1,34 @@
+GWC V17 OFFLINE TEST RESULTS
+Run date: 30 October 2026
+Environment: Python/openpyxl + Node.js v22.16.0
+Live Google services: NOT CONNECTED
+
+PASS
+1. ZIP source archive integrity and extraction.
+2. Code.gs syntax (copied to .js for Node parser).
+3. server.js syntax.
+4. index.html inline JavaScript syntax.
+5. JSON serialization/deserialization.
+6. Large-payload multi-chunk round-trip.
+7. Per-chunk SHA-256 and payload SHA-256 checks in offline harness.
+8. Same-length content mutation detection (equal character length, different hash).
+9. Unicode surrogate-pair chunk boundary safety.
+10. Literal formula-like text preservation using sentinel strategy.
+11. Stale revision rejection in offline compare-and-swap harness.
+12. Matching revision acceptance and increment.
+13. Empty core collections rejected by safety guard.
+14. Corrupt JSON rejection.
+15. Payload cap rejection.
+16. Backup snapshot JSON round-trip.
+17. 17:56 Primary and Stage exact content/hash match.
+18. 04:32 and 17:56 JSON validity and record-count comparison.
+19. Unique IDs for 80 courses, 68 users, 34 students.
+20. Student courseId and course teacherId references resolve.
+21. Required old feature hooks detected in index.html: monthly payment date, fee periods, forceActive date range, Join My Class, Meet URL, tests, homework, doubts, today notes, teacher/student/sub-admin/admin login, trash/archive.
+22. ZIP final integrity and required-file presence (post-package check).
+
+NOT RUN / NOT CLAIMED
+- Actual Apps Script deployment, google.script.run execution in browser, Sheets staging/read-back, Drive snapshot creation, trigger authorization, real-time multi-user concurrency, live fee cycle, real Meet link opening, live restore and 24-hour monitoring.
+- Authentication hardening and access control review.
+
+Offline harness result: 12/12 synthetic Node regression tests passed.

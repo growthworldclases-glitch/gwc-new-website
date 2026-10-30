@@ -1,0 +1,70 @@
+GWC V17 — DEPLOYMENT AUR DATA RECOVERY (HINDI)
+
+सबसे पहले:
+- 17:56 वाली Excel को सही Backup मानें।
+- 06:16 वाली GWC_Storage और GWC_Storage_Stage को Restore Source न बनाएं।
+- लाइव Spreadsheet की एक अलग Copy बनाएं।
+- इस ZIP से कोई भी फाइल सीधे Live Sheet में अपने-आप नहीं लिखी जाएगी।
+
+A. सही डेटा कहाँ है?
+1. 17:56 workbook के GWC_Storage में 80 Courses, 68 Users, 34 Students और 300 Audit Records हैं।
+2. उसी Workbook के GWC_Storage_Stage में भी वही 158,203-character valid JSON है।
+3. 04:32 ऐतिहासिक Backup = GWC_Storage_Backup_20261030_11.
+4. 06:16 की Primary/Stage में केवल 301-character खाली Default State है।
+
+B. कौन-सी Sheets Restore करें?
+- यदि Live Spreadsheet अभी 06:16 जैसा खाली है, तो 17:56 workbook की GWC_Storage को Live Spreadsheet की GWC_Storage में Restore करें।
+- GWC_Storage_Stage को केवल तभी कॉपी करें जब आप Stage को भी 17:56 के समान रखना चाहते हों; V17 अगली Save पर Stage खुद लिखेगा।
+- 04:32 वाली GWC_Storage_Backup_20261030_11 को ऐतिहासिक Backup के रूप में सुरक्षित रखें।
+- Sync Log, 06:16 की खाली Storage/Stage और पुराने #ERROR! वाले Backup को Primary न बनाएं।
+- किसी Backup Sheet को Delete न करें।
+
+C. Apps Script अपडेट
+1. मौजूदा Apps Script Project खोलें (उसी Project का उपयोग करें जिसका Web App URL वर्तमान HTML में है)।
+2. Code.gs को ZIP के Code.gs से बदलें।
+3. Apps Script में Add file > HTML चुनें और नाम index रखें।
+4. index.html की पूरी सामग्री उसमें Paste करें।
+5. Script Properties में GWC_SPREADSHEET_ID और GWC_DRIVE_FOLDER_ID को न बदलें। Spreadsheet ID वही होनी चाहिए जिसमें सही 17:56 डेटा है।
+6. Project Settings में Time Zone = Asia/Kolkata रखें।
+7. Save करें।
+8. Deploy > Manage deployments > Edit > New version करें। Existing Web App URL और सही access setting सुरक्षित रखें।
+9. Web App URL को बिना action parameter के खोलें। अब वेबसाइट Apps Script से serve होनी चाहिए।
+10. Apps Script Editor में installGwcV17Triggers() एक बार Run करें और permissions दें।
+
+D. Hosting
+- Apps Script-hosted mode में अलग Render/Node Hosting की जरूरत नहीं है।
+- server.js और package.json ZIP में backward compatibility के लिए रखे गए हैं। यदि पुरानी static website Render पर चलती रहेगी, तो वही proxy mode भी उपलब्ध है।
+- नए GAS-hosted mode में google.script.run से सीधे उसी Apps Script project के backend को कॉल किया जाता है।
+
+E. परीक्षण
+- Admin/Teacher/Student login पुराने credentials से करें।
+- Courses = 80, Users = 68, Students = 34 सत्यापित करें।
+- Fee Requests = 1 और Audit = 300 सत्यापित करें।
+- एक non-critical Admin change करके Save करें।
+- Sync badge में successful revision देखें।
+- Drive में GWC_Recovery_Backups folder और PRECOMMIT/PREPARED snapshots देखें।
+- Force to Start Batch, Join My Class, Meet link और Fee Cycle को test student पर जाँचें।
+
+F. अगर Sync Fail हो
+- Retry पर stale revision error आए तो उसी tab से बार-बार Save न करें।
+- Page reload करके नवीनतम Server State लोड करें।
+- Apps Script Executions, GWC_Storage_Stage और GWC_Recovery_Backups जाँचें।
+- Primary/Stage/Backup tabs को delete न करें।
+- Error के समय Spreadsheet की copy और execution log सुरक्षित करें।
+
+G. 24 घंटे की Monitoring
+- हर 1–2 घंटे Courses/Users/Students count देखें।
+- Revision और payload SHA-256 बदलने पर log करें।
+- GWC_Recovery_Backups में snapshot देखें।
+- Apps Script Executions में hourly trigger failure देखें।
+- Drive storage और permissions जाँचें।
+- कोई नया खाली state दिखे तो Save रोकें; 17:56 या नवीनतम valid snapshot से तुलना करें।
+
+सीमा:
+इस चैट से Live Google Sheet/Drive/Apps Script access नहीं मिला। इसलिए वास्तविक Live Restore, Deployment, Trigger authorization, logins और Google Meet परीक्षण आपको deployment के बाद करने होंगे। V17 ZIP केवल offline-tested package है; इसे live-tested कहना सही नहीं होगा।
+
+H. Login Safety
+Cloud state verify hone se pehle login disabled rahega. Isse HTML ke fallback/default data ko real login database nahi maana jayega. Sync successful hone ke baad saved credentials hi use honge; unhe reset nahi kiya gaya hai.
+
+I. दो Apps Script URLs का अंतर
+पुराने index.html और server.js में दो अलग Deployment URL मिले हैं। पुराने Proxy mode में server.js वाला URL वास्तव में इस्तेमाल होता है। यह अनुमान न लगाएँ कि कौन सही है। V17 GAS-hosted mode में google.script.run उसी Apps Script Project को कॉल करता है जो वेबसाइट serve कर रहा है। यदि पुराने Proxy को चालू रखें तो GWC_API_URL को जाँचे गए अधिकृत Deployment URL पर सेट करें।

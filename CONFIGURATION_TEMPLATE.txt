@@ -1,0 +1,16 @@
+GWC V17 CONFIGURATION TEMPLATE
+Required existing Script Property:
+- GWC_SPREADSHEET_ID = ID of the one authoritative Google Spreadsheet containing the restored 17:56 GWC_Storage data.
+- GWC_DRIVE_FOLDER_ID = existing upload folder ID (retain current value; optional only if existing setup has none).
+
+Created automatically by V17:
+- GWC_RECOVERY_FOLDER_ID
+- GWC_ACTIVE_SHEET
+- GWC_REVISION
+- GWC_PENDING_COMMIT (only during a commit)
+- GWC_LAST_HOURLY_HASH
+- GWC_LAST_HOURLY_AT
+
+Do not copy property values into public code, screenshots, ZIP files or chat.
+Do not change the existing Spreadsheet ID or upload folder ID unless you have independently verified the intended target.
+Apps Script project timezone: Asia/Kolkata.

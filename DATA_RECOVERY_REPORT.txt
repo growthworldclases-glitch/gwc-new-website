@@ -1,0 +1,119 @@
+GWC V17 — DATA RECOVERY FORENSIC REPORT
+Date analyzed: 30 October 2026
+Inputs: user-uploaded V15 ZIP, 06:16 XLSX, 17:56 XLSX
+All findings are offline-only; no live Google service was accessed or modified.
+
+1) WORKBOOK INVENTORY
+06:16 workbook sheets (4):
+- Sync Log: 2 rows x 4 columns; 8 non-empty cells.
+- GWC_Storage_Backup_20261030: 6 rows x 3 columns; 18 non-empty cells.
+- GWC_Storage_Stage: 6 rows x 3 columns; 6 non-empty cells.
+- GWC_Storage: 6 rows x 3 columns; 6 non-empty cells.
+
+17:56 workbook sheets (10):
+- Sync Log: 2 rows x 4 columns; 8 non-empty cells.
+- GWC_Storage_Stage: 7 rows x 3 columns; 21 non-empty cells.
+- GWC_Storage_Backup_20261030_17: 7 rows x 3 columns; 21 non-empty cells.
+- GWC_Storage_Backup_20261030_16: 6 rows x 3 columns; 18 non-empty cells.
+- GWC_Storage_Backup_20261030_15: 6 rows x 3 columns; 18 non-empty cells.
+- GWC_Storage_Backup_20261030_13: 6 rows x 3 columns; 18 non-empty cells.
+- GWC_Storage_Backup_20261030_12: 6 rows x 3 columns; 18 non-empty cells.
+- GWC_Storage_Backup_20261030_11: 6 rows x 3 columns; 18 non-empty cells.
+- GWC_Storage_Backup_20261030: 6 rows x 3 columns; 18 non-empty cells.
+- GWC_Storage: 7 rows x 3 columns; 21 non-empty cells.
+
+2) KEY STORAGE COMPARISON
+06:16 GWC_Storage:
+- 1 chunk, 301 chars, 301 UTF-8 bytes.
+- Valid JSON syntax, but an empty/default state: courses=0, users=0, students=0.
+- SHA-256: d29c00a01af5640ccdeb23b5865d11480719cd2bd1980a22c978eab7cea3e1e9.
+
+06:16 GWC_Storage_Stage:
+- Same 301 chars and same SHA-256 as the 06:16 primary.
+- Valid JSON syntax, but courses=0, users=0, students=0.
+- This is not a recoverable populated state.
+
+17:56 GWC_Storage:
+- 6 chunks; chunk lengths [29733, 29708, 30000, 29992, 29902, 8868].
+- 158,203 characters; 165,336 UTF-8 bytes.
+- Valid JSON. SHA-256: 4c824ee56b9196c37588b742cc24d3ac068c3435c735d8c4229ea0e6df2edb98.
+
+17:56 GWC_Storage_Stage:
+- Same 6 chunk lengths, character count, byte count, JSON validity and SHA-256 as 17:56 primary.
+- Exact reassembled content equality confirmed offline.
+
+04:32 historical recovery point, GWC_Storage_Backup_20261030_11:
+- Timestamp stored in sheet: 2026-10-30 04:32:02.958.
+- 5 chunks; lengths [29733, 29708, 30000, 29970, 14043].
+- 133,454 characters; 140,377 UTF-8 bytes.
+- Valid JSON. SHA-256: 4a73f6e40f1f7c5d06f06be44ba249ad70d837c7c84596d19e99d40dc6e30721.
+
+17:56 workbook's GWC_Storage_Backup_20261030_17 is timestamped 16:44:31.054, not 17:56:
+- 6 chunks, 156,925 chars, valid JSON, 282 audit records.
+- Do not confuse this 16:44 snapshot with the 17:56 primary state.
+
+3) RECORD COUNTS — 04:32 VS 17:56
+- courses: 80 -> 80
+- users: 68 -> 68
+- students: 34 -> 34
+- attendance: 0 -> 0
+- homework: 2 -> 2
+- tests: 0 -> 0
+- leaves: 0 -> 0
+- audit: 170 -> 300
+- feeRequests: 1 -> 1
+- doubts: 1 -> 1
+- trash: 1 -> 1
+- dailyClassTimes: 0 -> 0
+- todayNotes: 0 -> 0
+- notes: 0 -> 0
+
+4) ID AND RELATIONSHIP CHECKS IN 17:56 STATE
+- Course IDs: 80 unique of 80; no duplicate IDs.
+- User IDs: 68 unique of 68; no duplicate IDs.
+- Student IDs: 34 unique of 34; no duplicate IDs.
+- All non-empty student courseId references resolve to an existing course.
+- All non-empty course teacherId references resolve to an existing user.
+- 30 students have feePeriods; 28 have forceActive=true; 34 have monthlyPaymentDate.
+- Fee request status in this state: 1 approved record.
+- Compared with 04:32, Course/User/Student ID sets are identical. Audit count increased by 130; core entities were not lost between those two snapshots.
+
+5) 06:16 LEGACY BACKUP NOTE
+The 06:16 workbook's old GWC_Storage_Backup_20261030 sheet reassembles to valid JSON with 80 courses, 68 users and 34 students, but one 7-character chunk value is the literal string "#ERROR!" inserted between "teacher" and "_hupb" inside a JSON string. It is not an Excel formula cell (cell type is string). This is a suspicious content mutation; do not use it as the preferred recovery source. The 04:32 backup in the 17:56 workbook is newer and valid.
+
+6) ROOT CAUSE — EVIDENCE VS HYPOTHESIS
+PROVEN:
+- At 06:16, both primary and stage had been replaced by the same valid-but-empty 301-character default JSON.
+- At 17:56, primary and stage both contained the complete valid 158,203-character payload and exact same SHA-256.
+- The original V15 frontend initialized `state` from defaults and, when the server returned no state, explicitly POSTed those defaults to the server. This is a concrete dangerous code path: an empty/failed cloud load could be interpreted as a new database and saved.
+- V15 save/poll uses full-state snapshots and does not pass an expected server revision. An old tab can therefore submit an older full state after another portal has changed it.
+- V15 backend has a ScriptLock and exact string comparison of staged data, but it does not provide a revision compare-and-swap, per-chunk SHA-256 manifest, or durable transaction pointer/rollback guarantee.
+
+PROVEN DEPLOYMENT CONFIGURATION MISMATCH:
+- The URL literal in index.html and the default GWC_API_URL literal in server.js are different (112 characters each; first mismatch at character offset 71). The differing substring is in the Apps Script deployment identifier.
+- In the old static/proxy mode, server.js actually sends requests to its own URL; the index.html URL constant is not used by the current fetch path. Therefore the proxy may be pointed at a different Apps Script deployment than the one someone expects from the HTML constant. Whether these deployment IDs belong to the same Apps Script project or separate projects cannot be established offline.
+- V17 Apps Script-hosted mode uses google.script.run against the project serving the page, avoiding this split. If legacy proxy mode is retained, set GWC_API_URL to the verified authoritative deployment URL.
+
+NOT PROVEN:
+- Whether the exact 06:16 blank write came from the empty-load initialization branch, a stale browser tab, another Apps Script deployment, a manual restore, or a scheduled/other code path. No Apps Script execution logs or deployment inventory were provided.
+- Whether the reported chunk-3 same-length mismatch was caused by Sheets cell conversion, concurrent writes, an older writer, Unicode handling, permissions or another runtime issue. The message proves a chunk-content mismatch was detected despite equal total lengths; it does not identify the underlying cause.
+- Which deployment ID is the authoritative live project, whether the two deployments share the same Apps Script project/properties, and which deployment owns the active triggers cannot be determined from exported XLSX/ZIP alone.
+
+7) CODE CHANGES IN V17
+- Apps Script can serve index.html directly, removing Render/Node hosting dependency for the GAS-hosted mode.
+- `google.script.run` bridge added; legacy `/api/gwc` proxy fallback retained.
+- Empty cloud state is a hard error; no default database initialization.
+- Every save requires `expectedRevision`; stale writes are rejected.
+- Core state emptying and >80% core-record reduction are blocked.
+- 24,000-character Unicode-safe chunks, per-chunk SHA-256, manifest, total payload SHA-256, JSON validation and exact read-back.
+- Staging verifies before primary write.
+- Immutable Drive PRECOMMIT and PREPARED snapshots; hourly changed-state snapshots; no automatic deletion.
+- Pending commit recovery marker and best-effort rollback.
+- Existing login records/state shape, fee-cycle and force-active app code retained.
+- Existing `server.js` and `package.json` retained for legacy proxy use.
+
+8) LIMITATIONS
+- Offline tests do not prove Google Sheets, Apps Script, Drive or Web App deployment behavior.
+- Live spreadsheet restore, Script Properties, deployment URL, permissions, Apps Script execution quotas, trigger authorization, portal logins, Meet URLs and actual backup creation must be verified after deployment.
+- Five-year retention is no-auto-delete policy, not a storage guarantee; Google Drive capacity and quotas apply.
+- Legacy authentication remains client-side; server-side role/session authorization is a separate production security task.

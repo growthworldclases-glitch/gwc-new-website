@@ -1,0 +1,47 @@
+{
+  "version": "V17",
+  "analyzed_at": "2026-10-30",
+  "preferred_recovery_source": "Important GWC Website Data - 30 October, 17_56.xlsx / GWC_Storage",
+  "preferred_recovery": {
+    "characters": 158203,
+    "utf8_bytes": 165336,
+    "chunks": 6,
+    "sha256": "4c824ee56b9196c37588b742cc24d3ac068c3435c735d8c4229ea0e6df2edb98",
+    "record_counts": {
+      "courses": 80,
+      "users": 68,
+      "students": 34,
+      "homework": 2,
+      "audit": 300,
+      "feeRequests": 1,
+      "doubts": 1,
+      "trash": 1
+    }
+  },
+  "historical_0432": {
+    "sheet": "GWC_Storage_Backup_20261030_11",
+    "characters": 133454,
+    "chunks": 5,
+    "sha256": "4a73f6e40f1f7c5d06f06be44ba249ad70d837c7c84596d19e99d40dc6e30721",
+    "record_counts": {
+      "courses": 80,
+      "users": 68,
+      "students": 34,
+      "homework": 2,
+      "audit": 170,
+      "feeRequests": 1,
+      "doubts": 1,
+      "trash": 1
+    }
+  },
+  "bad_0616": {
+    "primary_characters": 301,
+    "stage_characters": 301,
+    "courses": 0,
+    "users": 0,
+    "students": 0
+  },
+  "live_spreadsheet_modified": false,
+  "live_saved_credentials_embedded": false,
+  "legacy_html_fallback_unchanged": true
+}

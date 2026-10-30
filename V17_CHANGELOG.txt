@@ -1,0 +1,11 @@
+GWC V17 CHANGELOG
+- Version: V17 Stable Cloud Sync & Data Recovery
+- Base: V15 ZIP uploaded by user.
+- UI: index.html retained and API transport improved.
+- Backend: Code.gs upgraded to guarded, revision-aware Apps Script storage.
+- Schema: existing state collections preserved; new metadata lives in Script Properties / Drive snapshot files, not in user login records.
+- Login: no password reset, no new default credential, no password values printed in reports.
+- Monthly Fee Cycle / Force to Start Batch: existing UI and state fields retained; backend fee trigger uses revision-aware save.
+- Hosting: Apps Script Web App can serve index.html; server.js/package.json retained as optional legacy proxy.
+- Recovery: 17:56 data remains external in the user's workbook and is not embedded in the public website ZIP.
+- Live status: offline validated; live deployment and Google permissions remain to be completed by the account owner.
