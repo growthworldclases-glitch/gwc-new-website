@@ -1159,7 +1159,7 @@ function buyNowChoice(cid){const c=state.courses.find(x=>x.id===cid&&x.displayed
 function openRazorpayOption(cid){return buyNowChoice(cid)}
 /* GWC additive patch: sold reversal, edit students, preserve restore/login credentials */
 function gwcReverseSold(cid){const c=state.courses.find(x=>x.id===cid);if(!c)return;if(!confirm('SOLD status reverse karke course dobara available karna hai?'))return;c.sold=false;c.soldAt='';c.active=true;c.displayed=true;log('COURSE_SOLD_REVERSED',c.inventoryCode||c.title);save();renderDashboard()}
-function gwcEditStudent(sid){const st=state.students.find(x=>x.id===sid)||state.trash.find(x=>x.trashType==='student'&&x.id===sid);if(!st)return;const c=state.courses.find(x=>x.id===(st.courseId||st.requestedCourseId)),u=state.users.find(x=>x.id===st.userId&&x.role==='student')||{};const opts=state.courses.filter(x=>x.active!==false&&!x.sold).map(x=>`<option value="${esc(x.id)}" ${x.id===(st.courseId||st.requestedCourseId)?'selected':''}>${esc('Class '+x.classNo+' · '+x.title+' · '+(x.subsection||''))}</option>`).join('');modal(`<h3>Edit / Update Student</h3><p class="muted">Existing Login ID/Password same rahenge jab tak Admin khud change na kare.</p><form onsubmit="gwcSaveEditedStudent(event,'${esc(st.id)}')"><div class="formgrid"><div class="field"><label>Student Name *</label><input name="name" value="${esc(st.name||'')}" required></div><div class="field"><label>Parent Mobile *</label><input name="mobile" value="${esc(st.mobile||'')}" required></div><div class="field"><label>Login ID *</label><input name="username" value="${esc(u.username||st.username||'')}" required></div><div class="field"><label>Password *</label><input name="password" value="${esc(u.password||st.password||'')}" required></div><div class="field"><label>Class *</label><input name="classNo" value="${esc(st.classNo||c?.classNo||'')}" required></div><div class="field"><label>School</label><input name="school" value="${esc(st.school||'')}"></div><div class="field"><label>Course / Batch *</label><select name="courseId" required>${opts}</select></div><div class="field"><label>Monthly Payable Fee (₹)</label><input name="studentFee" type="number" min="0" value="${Number(st.studentFee??st.lastApprovedFee??st.fee??gwcFeeFor(st,c))}" required></div><div class="field"><label>Teacher Monthly Payable (₹) *</label><input name="teacherMonthlyPay" type="number" min="0" step="0.01" value="${Number(st.teacherMonthlyPay??st.teacherPayable??0)}" required><small class="muted">Admin द्वारा इस Student के Teacher को दिया जाने वाला मासिक amount</small></div><div class="field"><label>Original Price (₹)</label><input name="baseCourseFee" type="number" min="0" value="${Number(st.baseCourseFee??c?.fee??0)}"></div><div class="field"><label>Discount (₹)</label><input name="discountAmount" type="number" min="0" value="${Number(st.discountAmount||0)}"></div><div class="field"><label>First Cycle Start Date</label><input name="firstCycleStartDate" type="date" value="${esc(st.firstCycleStartDate||'')}"></div><div class="field"><label>First Cycle Due / End Date</label><input name="firstCycleEndDate" type="date" value="${esc(st.firstCycleEndDate||st.nextPaymentDate||'')}"></div><div class="field"><label>Default Monthly Payment Date *</label><select name="monthlyPaymentDate" required>${Array.from({length:28},(_,i)=>i+1).map(d=>`<option value="${d}" ${d===Number(st.monthlyPaymentDate||5)?'selected':''}>${d} तारीख — हर महीने</option>`).join('')}</select><small class="muted">यह तारीख इस Student के हर महीने के Due Date के लिए लागू होगी।</small></div><div class="field"><label>Current Next Payment Date (auto)</label><input type="text" value="${esc(st.nextPaymentDate||'Auto calculate on save')}" readonly><small class="muted">Date को Default Monthly Payment Date से दोबारा तय किया जाएगा।</small></div><div class="field"><label>Total Monthly Cycles</label><input name="totalCycles" type="number" min="1" max="1200" value="${Number(st.totalCycles||12)}" required></div><div class="field"><label>Father / Guardian</label><input name="father" value="${esc(st.father||'')}"></div><div class="field"><label>Preferred Class Time</label><input name="preferredTime" value="${esc(st.preferredTime||'')}"></div><div class="field full"><label>Address</label><textarea name="address">${esc(st.address||'')}</textarea></div></div><button class="primary" style="width:100%;margin-top:14px">Save Student Changes</button></form>`)}
+function gwcEditStudent(sid){const st=state.students.find(x=>x.id===sid)||state.trash.find(x=>x.trashType==='student'&&x.id===sid);if(!st)return;const c=state.courses.find(x=>x.id===(st.courseId||st.requestedCourseId)),u=state.users.find(x=>x.id===st.userId&&x.role==='student')||{};const opts=state.courses.filter(x=>x.active!==false&&!x.sold).map(x=>`<option value="${esc(x.id)}" ${x.id===(st.courseId||st.requestedCourseId)?'selected':''}>${esc('Class '+x.classNo+' · '+x.title+' · '+(x.subsection||''))}</option>`).join('');modal(`<h3>Edit / Update Student</h3><p class="muted">Existing Login ID/Password same rahenge jab tak Admin khud change na kare.</p><form onsubmit="gwcSaveEditedStudent(event,'${esc(st.id)}')"><div class="formgrid"><div class="field"><label>Student Name *</label><input name="name" value="${esc(st.name||'')}" required></div><div class="field"><label>Parent Mobile *</label><input name="mobile" value="${esc(st.mobile||'')}" required></div><div class="field"><label>Login ID *</label><input name="username" value="${esc(u.username||st.username||'')}" required></div><div class="field"><label>Password *</label><input name="password" value="${esc(u.password||st.password||'')}" required></div><div class="field"><label>Class *</label><input name="classNo" value="${esc(st.classNo||c?.classNo||'')}" required></div><div class="field"><label>School</label><input name="school" value="${esc(st.school||'')}"></div><div class="field"><label>Course / Batch *</label><select name="courseId" required>${opts}</select></div><div class="field"><label>Monthly Payable Fee (₹)</label><input name="studentFee" type="number" min="0" value="${Number(st.studentFee??st.lastApprovedFee??st.fee??gwcFeeFor(st,c))}" required></div><div class="field"><label>Original Price (₹)</label><input name="baseCourseFee" type="number" min="0" value="${Number(st.baseCourseFee??c?.fee??0)}"></div><div class="field"><label>Discount (₹)</label><input name="discountAmount" type="number" min="0" value="${Number(st.discountAmount||0)}"></div><div class="field"><label>First Cycle Start Date</label><input name="firstCycleStartDate" type="date" value="${esc(st.firstCycleStartDate||'')}"></div><div class="field"><label>First Cycle Due / End Date</label><input name="firstCycleEndDate" type="date" value="${esc(st.firstCycleEndDate||st.nextPaymentDate||'')}"></div><div class="field"><label>Default Monthly Payment Date *</label><select name="monthlyPaymentDate" required>${Array.from({length:28},(_,i)=>i+1).map(d=>`<option value="${d}" ${d===Number(st.monthlyPaymentDate||5)?'selected':''}>${d} तारीख — हर महीने</option>`).join('')}</select><small class="muted">यह तारीख इस Student के हर महीने के Due Date के लिए लागू होगी।</small></div><div class="field"><label>Current Next Payment Date (auto)</label><input type="text" value="${esc(st.nextPaymentDate||'Auto calculate on save')}" readonly><small class="muted">Date को Default Monthly Payment Date से दोबारा तय किया जाएगा।</small></div><div class="field"><label>Total Monthly Cycles</label><input name="totalCycles" type="number" min="1" max="1200" value="${Number(st.totalCycles||12)}" required></div><div class="field"><label>Father / Guardian</label><input name="father" value="${esc(st.father||'')}"></div><div class="field"><label>Preferred Class Time</label><input name="preferredTime" value="${esc(st.preferredTime||'')}"></div><div class="field full"><label>Address</label><textarea name="address">${esc(st.address||'')}</textarea></div></div><button class="primary" style="width:100%;margin-top:14px">Save Student Changes</button></form>`)}
 function gwcSaveEditedStudent(e,sid){
  e.preventDefault();if(!current||current.role!=='admin'){alert('Only Admin can edit students.');return;}
  const st=state.students.find(x=>x.id===sid)||state.trash.find(x=>x.trashType==='student'&&x.id===sid);if(!st)return;
@@ -1168,7 +1168,7 @@ function gwcSaveEditedStudent(e,sid){
  const oldCourse=st.courseId,name=String(f.get('name')).trim(),mobile=String(f.get('mobile')).trim(),oldDue=String(st.nextPaymentDate||'');
  const day=Math.min(28,Math.max(1,Number(f.get('monthlyPaymentDate')||5))),now=new Date();
  const lastValidPeriod=gwcLastPeriod(st);const due=gwcNextFixedDate(day,lastValidPeriod&&new Date(lastValidPeriod.startAt)>now?new Date(lastValidPeriod.startAt):now);
- Object.assign(st,{name,mobile,classNo:String(f.get('classNo')),school:String(f.get('school')||''),father:String(f.get('father')||''),address:String(f.get('address')||''),preferredTime:String(f.get('preferredTime')||''),courseId:cid,requestedCourseId:cid,studentFee:Number(f.get('studentFee')),teacherMonthlyPay:Number(f.get('teacherMonthlyPay')||0),teacherPayable:Number(f.get('teacherMonthlyPay')||0),fee:Number(f.get('studentFee')),lastApprovedFee:Number(f.get('studentFee')),baseCourseFee:Number(f.get('baseCourseFee')||0),discountAmount:Number(f.get('discountAmount')||0),monthlyPaymentDate:day,firstCycleStartDate:String(f.get('firstCycleStartDate')||st.firstCycleStartDate||''),firstCycleEndDate:String(f.get('firstCycleEndDate')||st.firstCycleEndDate||''),nextPaymentDate:String(f.get('firstCycleEndDate')||due),totalCycles:Math.max(1,Number(f.get('totalCycles')||12)),paymentMode:'qr',qrUrl:'',updatedAt:now.toISOString()});
+ Object.assign(st,{name,mobile,classNo:String(f.get('classNo')),school:String(f.get('school')||''),father:String(f.get('father')||''),address:String(f.get('address')||''),preferredTime:String(f.get('preferredTime')||''),courseId:cid,requestedCourseId:cid,studentFee:Number(f.get('studentFee')),fee:Number(f.get('studentFee')),lastApprovedFee:Number(f.get('studentFee')),baseCourseFee:Number(f.get('baseCourseFee')||0),discountAmount:Number(f.get('discountAmount')||0),monthlyPaymentDate:day,firstCycleStartDate:String(f.get('firstCycleStartDate')||st.firstCycleStartDate||''),firstCycleEndDate:String(f.get('firstCycleEndDate')||st.firstCycleEndDate||''),nextPaymentDate:String(f.get('firstCycleEndDate')||due),totalCycles:Math.max(1,Number(f.get('totalCycles')||12)),paymentMode:'qr',qrUrl:'',updatedAt:now.toISOString()});
  const latestPeriod=gwcLastPeriod(st);
  if(latestPeriod){const end=new Date(due+'T00:00:00');if(end.getTime()>new Date(latestPeriod.startAt).getTime()){latestPeriod.endAt=end.toISOString();latestPeriod.adminDateEditedAt=now.toISOString();st.activeUntil=latestPeriod.endAt;latestPeriod.days=Math.ceil((end-new Date(latestPeriod.startAt))/86400000);}}
  st.monthlyReminderDue=false;st.monthlyReminderFor='';
@@ -2160,182 +2160,6 @@ const oldLogin=window.login;if(typeof oldLogin==='function')window.login=functio
 })();
 </script>
 
-
-<script>
-/* GWC V32 additive: verified monthly roster ledger, fee-slip register and Helpdesk archive controls.
-   Does not replace authentication, IDs, course data, Google transport or existing core records. */
-(function(){
- 'use strict';
- const arr=x=>Array.isArray(x)?x:[];
- const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const admin=()=>current&&current.role==='admin';
- const student=()=>current&&current.role==='student';
- const date=()=>new Date().toISOString().slice(0,10);
- const month=()=>window.gwcV32Month||new Date().toISOString().slice(0,7);
- const days=m=>{const [y,mm]=m.split('-').map(Number);return new Date(y,mm,0).getDate()};
- const label=m=>{const [y,mm]=m.split('-').map(Number);return new Date(y,mm-1,1).toLocaleString('en-IN',{month:'long',year:'numeric'})};
- const fmt=n=>typeof money==='function'?money(Number(n)||0):'₹'+(Number(n)||0).toFixed(2);
- const users=()=>arr(state.users), students=()=>arr(state.students), courses=()=>arr(state.courses);
- const teacherFor=st=>{const c=courses().find(c=>String(c.id)===String(st.courseId||st.assignedCourseId));const id=st.teacherId||st.assignedTeacherId||c?.teacherId||c?.assignedTeacherId;return users().find(u=>String(u.id)===String(id)&&u.role==='teacher')};
- const studentBy=id=>students().find(s=>String(s.id)===String(id)||String(s.userId)===String(id));
- const teacherName=id=>{const t=users().find(u=>String(u.id)===String(id));return t?.name||t?.username||'Teacher'};
- const init=()=>{
-  state.gwcSalaryAssignments=arr(state.gwcSalaryAssignments);
-  state.gwcSalaryPayments=arr(state.gwcSalaryPayments);
-  state.gwcSalaryAccess=arr(state.gwcSalaryAccess);
-  state.gwcFeeSlipArchive=arr(state.gwcFeeSlipArchive);
-  state.gwcMessages=arr(state.gwcMessages);
-  state.feeRequests=arr(state.feeRequests);
-  // Seed current assigned roster without guessing an unknown rate. Admin verifies/enters each monthly rate.
-  students().filter(s=>s.status!=='deleted').forEach(st=>{
-   const t=teacherFor(st); if(!t)return;
-   const active=state.gwcSalaryAssignments.find(a=>String(a.studentId)===String(st.id)&&String(a.teacherId)===String(t.id)&&!a.endDate);
-   if(!active){
-    const known=[st.teacherMonthlyPay,st.teacherPayable,st.teacherAmount,st.monthlyTeacherAmount,st.salaryPerMonth].map(Number).find(n=>Number.isFinite(n)&&n>0);
-    state.gwcSalaryAssignments.push({id:'v32seed_'+st.id+'_'+t.id,studentId:st.id,studentName:st.name||'',courseName:courses().find(c=>String(c.id)===String(st.courseId))?.title||'',teacherId:t.id,monthlyRate:known||0,startDate:String(st.admissionDate||st.createdAt||date()).slice(0,10),endDate:'',createdAt:new Date().toISOString(),source:'v32-existing-roster',needsRateVerification:!known});
-   }
-  });
- };
- function monthAssignments(m,tid){
-  const first=m+'-01',last=m+'-'+String(days(m)).padStart(2,'0');
-  return state.gwcSalaryAssignments.filter(a=>(!tid||String(a.teacherId)===String(tid))&&String(a.startDate||'')<=last&&(!a.endDate||String(a.endDate)>=first));
- }
- function calculate(tid,m){
-  const first=m+'-01',last=m+'-'+String(days(m)).padStart(2,'0'),totalDays=days(m);
-  const list=monthAssignments(m,tid).map(a=>{
-   const from=String(a.startDate||first)>first?String(a.startDate):first;
-   const to=a.endDate&&String(a.endDate)<last?String(a.endDate):last;
-   const count=to<from?0:Math.floor((new Date(to+'T00:00:00')-new Date(from+'T00:00:00'))/86400000)+1;
-   const rate=Math.max(0,Number(a.monthlyRate)||0),amount=Math.round(rate*count/totalDays*100)/100;
-   const st=studentBy(a.studentId),c=st&&courses().find(c=>String(c.id)===String(st.courseId));
-   return {...a,studentName:st?.name||a.studentName||'Removed student',courseName:c?.title||a.courseName||'',days:count,amount};
-  }).filter(x=>x.days>0);
-  return {list,total:list.reduce((s,x)=>s+x.amount,0)};
- }
- window.gwcV32SetRate=function(id){
-  if(!admin())return;init();const a=state.gwcSalaryAssignments.find(x=>String(x.id)===String(id));if(!a)return;
-  const raw=prompt('Is student ka monthly teacher payable amount (₹) enter karein:',String(a.monthlyRate||0));if(raw===null)return;
-  const n=Number(raw);if(!Number.isFinite(n)||n<0){alert('Valid non-negative amount enter karein.');return;}
-  a.monthlyRate=n;a.needsRateVerification=false;a.rateUpdatedAt=new Date().toISOString();a.rateUpdatedBy=current.id;save();renderDashboard();
- };
- window.gwcV32CloseAssignment=function(id){
-  if(!admin())return;const a=state.gwcSalaryAssignments.find(x=>String(x.id)===String(id));if(!a||a.endDate)return;
-  const d=prompt('Last teaching date (YYYY-MM-DD):',date());if(!d||!/^\d{4}-\d{2}-\d{2}$/.test(d)||d<a.startDate){alert('Valid last teaching date enter karein.');return;}
-  a.endDate=d;a.closedAt=new Date().toISOString();save();renderDashboard();
- };
- function salaryView(){
-  init();const m=month(),ts=users().filter(u=>u.role==='teacher'&&u.active!==false),filter=window.gwcV32Teacher||'all';
-  const chosen=filter==='all'?ts:ts.filter(t=>String(t.id)===filter);
-  const rec=chosen.map(t=>({t,...calculate(t.id,m)})),grand=rec.reduce((n,x)=>n+x.total,0);
-  const rows=rec.map(r=>`<tr><td><b>${esc(r.t.name||r.t.username)}</b></td><td>${r.list.length}</td><td>${fmt(r.total)}</td><td><button class="outline" onclick="gwcV32Details('${esc(r.t.id)}')">Student details / verify</button></td></tr>`).join('');
-  const all=students().filter(s=>s.status!=='deleted'&&teacherFor(s));
-  const history=state.gwcSalaryPayments.filter(p=>p.month===m);
-  return `<div class="dashhead"><div><h1>💰 Salary Management</h1><p class="muted">Per-student monthly payable · automatically totalled teacher-wise</p></div></div>
-  <div class="panel"><div class="formgrid"><div class="field"><label>Month / Year</label><input type="month" value="${esc(m)}" onchange="gwcV32Month=this.value;renderDashboard()"></div><div class="field"><label>Teacher</label><select onchange="gwcV32Teacher=this.value;renderDashboard()"><option value="all">All teachers</option>${ts.map(t=>`<option value="${esc(t.id)}" ${filter===String(t.id)?'selected':''}>${esc(t.name||t.username)}</option>`).join('')}</select></div></div><h2>Overall monthly payable: ${fmt(grand)}</h2><div class="tablewrap"><table><thead><tr><th>Teacher</th><th>Assigned students</th><th>Monthly payable</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="4">No assigned teacher records.</td></tr>'}</tbody></table></div></div>
-  <div class="panel"><h3>Student-wise monthly payable setup</h3><p class="small muted">Admin har assigned student ka monthly amount manually enter/verify kare. Existing assigned students automatically roster mein seed kiye gaye hain; unknown rates ₹0 par “Verify rate” dikhte hain, koi amount guess nahi kiya gaya.</p><div class="tablewrap"><table><thead><tr><th>Student / Course</th><th>Teacher</th><th>Monthly payable</th><th>Assignment</th><th>Action</th></tr></thead><tbody>${all.map(st=>{const t=teacherFor(st),a=state.gwcSalaryAssignments.filter(x=>String(x.studentId)===String(st.id)&&String(x.teacherId)===String(t.id)&&!x.endDate).slice(-1)[0];return `<tr><td><b>${esc(st.name||st.id)}</b><div class="small">${esc(courses().find(c=>String(c.id)===String(st.courseId))?.title||'')}</div></td><td>${esc(t.name||t.username)}</td><td>${fmt(a?.monthlyRate||0)} ${a?.needsRateVerification?'<span style="color:#b45309">Verify rate</span>':''}</td><td>${esc(a?.startDate||'—')}</td><td>${a?`<button class="outline" onclick="gwcV32SetRate('${esc(a.id)}')">Edit monthly amount</button> <button class="outline" onclick="gwcV32CloseAssignment('${esc(a.id)}')">Close / move</button>`:'—'}</td></tr>`}).join('')||'<tr><td colspan="5">No assigned students.</td></tr>'}</tbody></table></div></div>
-  <div class="panel"><h3>Monthly payout verification / release</h3><p class="small muted">Admin calculated total verify karke 50%, 100% ya custom percentage record kare.</p><form onsubmit="gwcV32Pay(event,'${esc(m)}')"><div class="formgrid"><div class="field"><label>Teacher</label><select name="teacher" required>${ts.map(t=>`<option value="${esc(t.id)}">${esc(t.name||t.username)}</option>`).join('')}</select></div><div class="field"><label>Percentage</label><select name="pct"><option value="50">50%</option><option value="100">100%</option><option value="custom">Custom</option></select></div><div class="field"><label>Custom %</label><input name="custom" type="number" min="0" max="100" step=".01"></div><div class="field"><label>Payment date</label><input name="paidDate" type="date" value="${date()}" required></div><div class="field"><label>Note</label><input name="note" maxlength="180"></div></div><button class="primary">Verify & save monthly payment</button></form>${history.map(p=>`<p class="small">${esc(teacherName(p.teacherId))}: ${p.pct}% · ${fmt(p.amount)} · ${esc(p.paidDate)}</p>`).join('')}</div>`;
- }
- window.gwcV32Details=function(tid){
-  if(!admin())return;init();const m=month(),r=calculate(tid,m),rows=r.list.map(x=>`<tr><td>${esc(x.studentName)}</td><td>${esc(x.courseName)}</td><td>${fmt(x.monthlyRate)}</td><td>${esc(x.startDate)} – ${esc(x.endDate||'Ongoing')}</td><td>${x.days}</td><td>${fmt(x.amount)}</td><td><button class="outline" onclick="gwcV32SetRate('${esc(x.id)}')">Edit rate</button></td></tr>`).join('');
-  const access=state.gwcSalaryAccess.find(x=>String(x.teacherId)===String(tid));
-  modal(`<h3>${esc(teacherName(tid))} · ${esc(label(m))}</h3><p><b>Total payable: ${fmt(r.total)}</b></p><label><input type="checkbox" ${access?.enabled?'checked':''} onchange="gwcV32ToggleDetails('${esc(tid)}',this.checked)"> Allow teacher to view student-wise details</label><div class="tablewrap"><table><thead><tr><th>Student</th><th>Course</th><th>Monthly rate</th><th>Assigned dates</th><th>Days</th><th>Payable</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="7">No entries.</td></tr>'}</tbody></table></div>`);
- };
- window.gwcV32ToggleDetails=(tid,on)=>{if(!admin())return;init();let a=state.gwcSalaryAccess.find(x=>String(x.teacherId)===String(tid));if(!a){a={teacherId:tid};state.gwcSalaryAccess.push(a);}a.enabled=!!on;a.updatedAt=new Date().toISOString();save();};
- window.gwcV32Pay=function(e,m){e.preventDefault();if(!admin())return;init();const f=new FormData(e.target),tid=String(f.get('teacher')),pct=String(f.get('pct'))==='custom'?Number(f.get('custom')):Number(f.get('pct')),r=calculate(tid,m);if(!Number.isFinite(pct)||pct<0||pct>100){alert('Percentage 0–100 honi chahiye.');return;}state.gwcSalaryPayments.push({id:'v32pay_'+Date.now(),teacherId:tid,month:m,pct,amount:Math.round(r.total*pct)/100,totalPayable:r.total,paidDate:String(f.get('paidDate')),note:String(f.get('note')||''),createdAt:new Date().toISOString(),verifiedBy:current.id});save();alert('Monthly payment record saved.');renderDashboard();};
- function teacherPay(){
-  init();const m=window.gwcV32TeacherMonth||month(),r=calculate(current.id,m),p=state.gwcSalaryPayments.filter(x=>String(x.teacherId)===String(current.id)&&x.month===m),access=state.gwcSalaryAccess.find(x=>String(x.teacherId)===String(current.id));
-  return `<div class="dashhead"><div><h1>💰 My Payment</h1><p>${esc(label(m))}</p></div></div><div class="panel"><label>Month</label><input type="month" value="${esc(m)}" onchange="gwcV32TeacherMonth=this.value;renderDashboard()"><h2>Total monthly payable: ${fmt(r.total)}</h2><p class="muted">Student-wise details are hidden unless Admin grants access.</p>${access?.enabled?`<button class="outline" onclick="gwcV32TeacherDetails()">View permitted details</button>`:''}<h3>Payment records</h3>${p.map(x=>`<p>${x.pct}% · ${fmt(x.amount)} · ${esc(x.paidDate)}</p>`).join('')||'No payment record for this month.'}</div>`;
- }
- window.gwcV32TeacherDetails=()=>{if(current?.role!=='teacher')return;const a=state.gwcSalaryAccess.find(x=>String(x.teacherId)===String(current.id));if(!a?.enabled){alert('Admin permission required.');return;}const r=calculate(current.id,window.gwcV32TeacherMonth||month());modal(`<h3>Permitted student-wise details</h3>${r.list.map(x=>`<p>${esc(x.studentName)} · ${fmt(x.amount)}</p>`).join('')}`);};
-
- // Student uploads a JPEG/PNG slip for a selected month; Admin can view, replace or delete it.
- async function uploadSlip(file){
-  if(!file||!['image/jpeg','image/png'].includes(file.type)||file.size>1024*1024)throw new Error('JPEG/PNG image 1 MB tak allowed hai.');
-  const dataUrl=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>no(new Error('File read failed'));r.readAsDataURL(file);});
-  const res=await googleApi({action:'upload',name:'GWC-Fee-'+Date.now()+(file.type==='image/jpeg'?'.jpg':'.png'),mimeType:file.type,dataUrl,privateFile:true});
-  if(!res?.ok||!res.url||!res.fileId)throw new Error(res?.error||'Drive upload failed');return res;
- }
- function studentSlip(){
-  init();const m=window.gwcV32SlipMonth||month(),st=studentBy(current.id);if(!st)return '<div class="panel">Student record not found.</div>';
-  const q=state.feeRequests.find(x=>String(x.studentId)===String(st.id)&&String(x.month||'').slice(0,7)===m);
-  return `<div class="dashhead"><h1>🧾 Monthly Fee Slip</h1></div><div class="panel"><label>Month / Year</label><input type="month" value="${esc(m)}" onchange="gwcV32SlipMonth=this.value;renderDashboard()"><p>${q?.slipUrl?`<a href="${esc(q.slipUrl)}" target="_blank" rel="noopener">View attached slip</a>`:'No slip attached for this month.'}</p><form onsubmit="gwcV32StudentUpload(event,'${esc(m)}')"><label>Upload JPEG / PNG (max 1 MB)</label><input type="file" name="slip" accept="image/jpeg,image/png" required><button class="primary">Upload fee slip</button></form></div>`;
- }
- window.gwcV32StudentUpload=async function(e,m){e.preventDefault();if(!student())return;init();const st=studentBy(current.id),file=e.target.elements.slip.files[0];try{const up=await uploadSlip(file);let q=state.feeRequests.find(x=>String(x.studentId)===String(st.id)&&String(x.month||'').slice(0,7)===m);if(!q){q={id:'fee_v32_'+Date.now(),studentId:st.id,studentName:st.name,month:m};state.feeRequests.push(q);}if(q.fileId)q.previousSlip={url:q.slipUrl,fileId:q.fileId,archivedAt:new Date().toISOString()};q.slipUrl=up.url;q.fileId=up.fileId;q.fileName=file.name;q.mimeType=file.type;q.submittedAt=new Date().toISOString();q.status='Payment Verification Pending';save();alert('Fee slip uploaded. Admin verification pending.');renderDashboard();}catch(err){alert(err.message||err);}};
- async function adminDeleteSlip(id){
-  const q=state.feeRequests.find(x=>String(x.id)===String(id));if(!q)return;
-  if(!confirm('Selected month ki fee slip permanently delete karni hai?'))return;
-  try{if(q.fileId){const d=await googleApi({action:'permanentdeletefile',fileId:q.fileId});if(!d?.ok)throw new Error(d?.error||'Drive delete failed');}q.slipUrl='';q.fileId='';q.fileName='';q.deletedAt=new Date().toISOString();save();renderDashboard();}catch(e){alert('Delete failed: '+(e.message||e));}
- }
- window.gwcV32AdminUpload=async function(e,id){e.preventDefault();if(!admin())return;const q=state.feeRequests.find(x=>String(x.id)===String(id)),file=e.target.elements.slip.files[0];if(!q)return;try{const up=await uploadSlip(file);if(q.fileId){const a=await googleApi({action:'archivefile',fileId:q.fileId});if(!a?.ok)throw new Error(a?.error||'Old slip archive failed');state.gwcFeeSlipArchive.push({studentId:q.studentId,month:q.month,fileId:q.fileId,url:q.slipUrl,archivedAt:new Date().toISOString(),reason:'Replaced'});}q.slipUrl=up.url;q.fileId=up.fileId;q.fileName=file.name;q.mimeType=file.type;q.submittedAt=new Date().toISOString();q.updatedBy=current.id;save();renderDashboard();}catch(err){alert(err.message||err);}};
- window.gwcV32AdminDeleteSlip=adminDeleteSlip;
- async function archiveOldFeeSlips(){
-  init();const cutoff=Date.now()-90*86400000;
-  for(const q of state.feeRequests){
-   if(!q.fileId||q.v32ArchivedAt)continue;
-   const stamp=Date.parse(q.submittedAt||q.createdAt||'');if(!Number.isFinite(stamp)||stamp>cutoff)continue;
-   try{
-    const moved=await googleApi({action:'archivefile',fileId:q.fileId});
-    if(!moved?.ok)continue;
-    state.gwcFeeSlipArchive.push({studentId:q.studentId,month:q.month,fileId:q.fileId,url:q.slipUrl,archivedAt:new Date().toISOString(),reason:'Automatic 90-day archive',folderUrl:moved.folderUrl||''});
-    q.v32ArchivedAt=new Date().toISOString();q.v32ArchiveFolderUrl=moved.folderUrl||'';
-    save();
-   }catch(err){console.warn('Fee slip archive retry next admin visit',err);}
-  }
- }
- function feeAdmin(){
-  init();archiveOldFeeSlips();const m=window.gwcV32FeeMonth||month(),rows=students().filter(s=>s.status!=='deleted').map(st=>{
-   const c=courses().find(x=>String(x.id)===String(st.courseId)),t=teacherFor(st),q=state.feeRequests.filter(x=>String(x.studentId)===String(st.id)&&String(x.month||'').slice(0,7)===m).sort((a,b)=>String(b.submittedAt||'').localeCompare(String(a.submittedAt||'')))[0];
-   const periods=arr(st.feePeriods),period=periods.find(p=>String(p.month||'').slice(0,7)===m)||periods.find(p=>String(p.startAt||'').slice(0,7)===m);
-   const from=period?.startAt||st.activeFrom||'',to=period?.endAt||st.activeUntil||'',fee=Number(q?.amount||period?.amount||st.studentFee||st.monthlyFee||0);
-   return {st,c,t,q,from,to,fee};
-  });
-  const total=rows.reduce((n,x)=>n+x.fee,0);
-  return `<div class="dashhead"><div><h1>💳 Fee Management</h1><p class="muted">Month-wise assigned student register · fee slips</p></div></div><div class="panel"><label>Month / Year</label><input type="month" value="${esc(m)}" onchange="gwcV32FeeMonth=this.value;renderDashboard()"><h3>${esc(label(m))} · Total recorded fee ${fmt(total)}</h3><div class="tablewrap"><table><thead><tr><th>Admission date</th><th>Student / Course / Teacher</th><th>Valid from – to (DD/MM/YY)</th><th>Fee</th><th>Slip</th><th>Admin action</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.st.admissionDate||String(x.st.createdAt||'').slice(0,10)||'—')}</td><td><b>${esc(x.st.name)}</b><div class="small">${esc(x.c?.title||'—')} · ${esc(x.t?.name||x.t?.username||'—')}</div></td><td>${x.from?new Date(x.from).toLocaleDateString('en-GB'):'—'} – ${x.to?new Date(x.to).toLocaleDateString('en-GB'):'—'}</td><td>${fmt(x.fee)}</td><td>${x.q?.slipUrl?`<a href="${esc(x.q.slipUrl)}" target="_blank" rel="noopener">View</a>`:'Not attached'}<div class="small">${esc(x.q?.submittedAt||'')}</div></td><td>${x.q?`<form onsubmit="gwcV32AdminUpload(event,'${esc(x.q.id)}')"><input type="file" name="slip" accept="image/jpeg,image/png" required><button class="outline">Replace</button></form><button class="danger" onclick="gwcV32AdminDeleteSlip('${esc(x.q.id)}')">Delete slip</button>`:'Parent upload pending'}</td></tr>`).join('')||'<tr><td colspan="6">No student rows.</td></tr>'}</tbody></table></div></div><div class="panel"><h3>Archived fee slips</h3><p class="small">Archived slips remain in Drive deleted-items archive; records are listed below.</p>${state.gwcFeeSlipArchive.map(a=>`<p>${esc(a.studentId)} · ${esc(a.month)} · ${esc(a.archivedAt)}</p>`).join('')||'No archived fee slips.'}</div>`;
- }
-
- // Hide = archive from the dashboard inbox, unhide = restore. The underlying conversation remains intact.
- function helpdesk(){
-  init();const msgs=state.gwcMessages,allPeople=[...students().map(s=>({id:s.userId||s.id,name:s.name||s.id,role:'student'})),...users().filter(u=>['teacher','subadmin'].includes(u.role)).map(u=>({id:u.id,name:u.name||u.username,role:u.role}))];
-  const query=String(window.gwcV32ChatSearch||'').toLowerCase();
-  const filtered=allPeople.filter(p=>(p.name+' '+p.id+' '+p.role).toLowerCase().includes(query));
-  const threads=filtered.map(p=>{const list=msgs.filter(m=>(String(m.senderId)===String(p.id)&&String(m.recipientId)==='admin')||(String(m.recipientId)===String(p.id)&&String(m.senderId)==='admin')||((String(m.senderId)===String(p.id)||String(m.recipientId)===String(p.id))&&['admin',current.id].includes(String(m.senderId))));return {p,list};}).filter(x=>x.list.length);
-  const archived=msgs.filter(m=>m.hiddenByAdmin||m.archivedByAdmin);
-  const active=threads.filter(x=>x.list.some(m=>!m.hiddenByAdmin&&!m.archivedByAdmin));
-  return `<div class="dashhead"><div><h1>💬 WhatsApp Helpdesk</h1><p class="muted">Search people · Go to Chat · Hide/Unhide dashboard messages</p></div></div><div class="panel"><input placeholder="Search student / teacher / login ID" value="${esc(query)}" oninput="gwcV32ChatSearch=this.value;gwcV32RenderChat()"><h3>Main Dashboard Messages</h3>${active.map(x=>`<div class="panel" style="margin:8px 0"><b>${esc(x.p.name)}</b><div class="small">${x.list.length} message(s) · ${esc(x.p.role)}</div><button class="primary" onclick="gwcV32OpenChat('${esc(x.p.id)}','${esc(x.p.role)}')">Go to Chat</button>${x.list.filter(m=>!m.hiddenByAdmin&&!m.archivedByAdmin).map(m=>`<button class="outline" onclick="gwcV32HideMessage('${esc(m.id)}',true)">Hide</button>`).join('')}</div>`).join('')||'<p>No visible dashboard messages.</p>'}</div><div class="panel"><h3>Archived / Hidden (${archived.length})</h3>${archived.map(m=>`<p>${esc(m.senderName||m.senderId)} → ${esc(m.recipientName||m.recipientId)} · ${esc(String(m.message||'').slice(0,100))} <button class="outline" onclick="gwcV32HideMessage('${esc(m.id)}',false)">Unhide</button></p>`).join('')||'No archived messages.'}</div><div class="panel"><h3>Find a chat</h3>${filtered.map(p=>`<button class="outline" onclick="gwcV32OpenChat('${esc(p.id)}','${esc(p.role)}')">${esc(p.name)} · ${esc(p.role)}</button> `).join('')}</div>`;
- }
- window.gwcV32RenderChat=()=>{if(admin()){const r=document.getElementById('dashContent');if(r)r.innerHTML=helpdesk();}};
- window.gwcV32HideMessage=(id,hide)=>{if(!admin())return;const m=state.gwcMessages.find(x=>String(x.id)===String(id));if(!m)return;if(hide){m.hiddenByAdmin=true;m.archivedByAdmin=true;m.hiddenAt=new Date().toISOString();}else{delete m.hiddenByAdmin;delete m.archivedByAdmin;delete m.hiddenAt;}save();gwcV32RenderChat();};
- window.gwcV32OpenChat=(id,role)=>{if(!admin())return;window.gwcV32CurrentChat={id,role};const list=arr(state.gwcMessages).filter(m=>(String(m.senderId)===String(id)&&String(m.recipientId)==='admin')||(String(m.recipientId)===String(id)&&String(m.senderId)==='admin'));const rows=list.map(m=>`<div class="panel"><div class="small">${esc(m.senderName)} → ${esc(m.recipientName)} · ${esc(m.createdAt||'')}</div><p style="white-space:pre-wrap">${esc(m.message)}</p><button class="danger" onclick="gwcV32PermanentMessage('${esc(m.id)}')">Permanently Delete</button></div>`).join('');modal(`<h3>Chat · ${esc(id)}</h3>${rows||'No messages.'}<button class="outline" onclick="closeModal();tab='helpline';renderDashboard()">Back to Helpdesk</button>`);};
- window.gwcV32PermanentMessage=id=>{if(!admin()||!confirm('Permanently delete this chat message? This cannot be undone.'))return;state.gwcMessages=arr(state.gwcMessages).filter(m=>String(m.id)!==String(id));save();const c=window.gwcV32CurrentChat;if(c)gwcV32OpenChat(c.id,c.role);};
- // Keep a small dashboard list on existing Helpdesk tab; do not disturb the legacy sender forms for other roles.
- const prevMenu=menu;menu=function(){const m=prevMenu();if(admin()&&!m.some(x=>String(x[0])==='salarymanagement'))m.push(['salarymanagement','💰 Salary Management']);if(admin()&&!m.some(x=>String(x[0])==='feemanagement'))m.push(['feemanagement','💳 Fee Management']);if(student()&&!m.some(x=>String(x[0])==='myfeeslip'))m.push(['myfeeslip','🧾 Monthly Fee Slip']);return m;};
- const prevRender=renderTab;renderTab=function(){
-  const root=document.getElementById('dashContent');
-  if(root&&tab==='salarymanagement'&&admin()){root.innerHTML=salaryView();return;}
-  if(root&&tab==='mypayment'&&current?.role==='teacher'){root.innerHTML=teacherPay();return;}
-  if(root&&tab==='feemanagement'&&admin()){root.innerHTML=feeAdmin();return;}
-  if(root&&tab==='myfeeslip'&&student()){root.innerHTML=studentSlip();return;}
-  if(root&&tab==='helpline'&&admin()){root.innerHTML=helpdesk();return;}
-  return prevRender();
- };
- // Close the old assignment at the date a student/course teacher changes, then seed the new roster.
- const previousSave=save;
- save=function(){
-  try{
-   if(current?.role==='admin'){
-    init();
-    state.gwcSalaryAssignments.forEach(a=>{
-     if(a.endDate)return;const st=studentBy(a.studentId),t=st&&teacherFor(st);
-     if(!st||st.status==='deleted'||(t&&String(t.id)!==String(a.teacherId))){a.endDate=date();a.closedAutomaticallyAt=new Date().toISOString();a.closeReason=!st?'student removed':'teacher/course changed';}
-    });
-    students().filter(s=>s.status!=='deleted').forEach(st=>{const t=teacherFor(st);if(!t)return;const active=state.gwcSalaryAssignments.find(a=>String(a.studentId)===String(st.id)&&String(a.teacherId)===String(t.id)&&!a.endDate);if(active&&Number.isFinite(Number(st.teacherMonthlyPay))&&Number(st.teacherMonthlyPay)>=0){active.monthlyRate=Number(st.teacherMonthlyPay);active.needsRateVerification=false;}const exists=!!active;if(!exists){state.gwcSalaryAssignments.push({id:'v32auto_'+Date.now()+'_'+st.id,studentId:st.id,studentName:st.name||'',courseName:courses().find(c=>String(c.id)===String(st.courseId))?.title||'',teacherId:t.id,monthlyRate:0,startDate:date(),endDate:'',createdAt:new Date().toISOString(),source:'auto-roster-change',needsRateVerification:true});}})
-   }
-  }catch(e){console.warn('V32 salary roster sync',e);}
-  return previousSave();
- };
-})();
-</script>
-
 </body>
 </html>
 <script>
@@ -2802,5 +2626,182 @@ const oldRenderTab=renderTab;renderTab=function(){init();const r=document.getEle
 // Month-wise fee register uses existing uploaded fee requests/approved periods; no old data is deleted.
 function feeRegister(){const m=window.gwcFeeMonth||monthNow();window.gwcFeeMonth=m;const reqs=A(state.feeRequests).filter(q=>String(q.month||'').slice(0,7)===m||String(q.submittedAt||'').slice(0,7)===m);const students=A(state.students).filter(s=>s.status!=='deleted');const rows=students.map(st=>{const c=studentCourse(st),t=c&&state.users.find(u=>String(u.id)===String(c.teacherId)),q=reqs.filter(x=>String(x.studentId)===String(st.id)).sort((a,b)=>String(b.submittedAt||'').localeCompare(String(a.submittedAt||'')))[0],period=A(st.feePeriods).filter(p=>String(p.month||'').slice(0,7)===m),p=period[period.length-1],validFrom=p?.startAt||st.activeFrom||'',validTo=p?.endAt||st.activeUntil||'',fee=Number(q?.amount||p?.amount||st.studentFee||0),teacherAmt=Number(st.teacherPayable||c?.teacherPayable||0);return {st,c,t,q,validFrom,validTo,fee,teacherAmt};});const total=rows.reduce((n,x)=>n+x.fee,0),teacherTotal=rows.reduce((n,x)=>n+x.teacherAmt,0);return `<div class="dashhead"><div><h1>💳 Fee Management</h1><p class="muted">Month-wise student register · uploaded slip status · organization balance estimate</p></div></div><div class="panel"><label>Month and year</label><input type="month" value="${E(m)}" onchange="gwcFeeMonth=this.value;renderDashboard()"><h3>${E(monthLabel(m))}</h3><p>Recorded student fee total: <b>${money(total)}</b> · Teacher payable configured: <b>${money(teacherTotal)}</b> · Organization balance estimate: <b>${money(total-teacherTotal)}</b></p><div class="tablewrap"><table><thead><tr><th>Admission date</th><th>Student / course / teacher</th><th>Valid from – to</th><th>Fee</th><th>Slip</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${E(x.st.admissionDate||x.st.createdAt||'—')}</td><td><b>${E(x.st.name)}</b><div class="small">${E(x.c?.title||'')} · ${E(x.t?.name||x.t?.username||'')}</div></td><td>${E(x.validFrom?new Date(x.validFrom).toLocaleDateString('en-GB'):'—')} – ${E(x.validTo?new Date(x.validTo).toLocaleDateString('en-GB'):'—')}</td><td>${money(x.fee)}</td><td>${x.q?.slipUrl?`<a target="_blank" rel="noopener" href="${E(x.q.slipUrl)}">View attached slip</a>`:'Not attached'}<div class="small">${E(x.q?.submittedAt||'')}</div></td></tr>`).join('')||'<tr><td colspan="5">No student records.</td></tr>'}</tbody></table></div></div>`;}
 const oldRenderFee=renderTab;renderTab=function(){const r=document.getElementById('dashContent');if(r&&tab==='feemanagement'&&admin()){r.innerHTML=feeRegister();return;}oldRenderFee();};
+})();
+</script>
+
+<script>
+/* GWC V32 additive repair: per-student monthly payable, assignment lifecycle,
+   dashboard message archive/search and chat-level permanent deletion. */
+(function(){
+'use strict';
+const A=x=>Array.isArray(x)?x:[];
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const isAdmin=()=>current&&current.role==='admin';
+const day=()=>new Date().toISOString().slice(0,10);
+const month=()=>window.gwcSalaryMonth||new Date().toISOString().slice(0,7);
+const courseOf=s=>A(state.courses).find(c=>String(c.id)===String(s.courseId));
+const teacherOf=s=>s.teacherId||courseOf(s)?.teacherId||courseOf(s)?.teacher;
+const userOf=id=>A(state.users).find(u=>String(u.id)===String(id));
+const tname=id=>userOf(id)?.name||userOf(id)?.username||String(id||'Unassigned');
+const init=()=>{state.gwcSalaryAssignments=A(state.gwcSalaryAssignments);state.gwcSalaryPayments=A(state.gwcSalaryPayments);state.gwcSalaryAccess=A(state.gwcSalaryAccess);state.gwcDashboardArchive=A(state.gwcDashboardArchive);};
+function seedExisting(){
+ init();
+ const active=A(state.students).filter(s=>s.status!=='deleted');
+ active.forEach(s=>{
+  const tid=teacherOf(s);if(!tid)return;
+  const exists=state.gwcSalaryAssignments.some(a=>String(a.studentId)===String(s.id)&&String(a.teacherId)===String(tid)&&!a.endDate);
+  if(!exists){
+   const rate=Number(s.teacherMonthlyPayable??s.teacherPayable??s.teacherAmount??courseOf(s)?.teacherMonthlyPayable??courseOf(s)?.teacherPayable??0);
+   state.gwcSalaryAssignments.push({id:'v32seed_'+s.id+'_'+tid,studentId:s.id,studentName:s.name||'',courseName:courseOf(s)?.title||'',teacherId:String(tid),monthlyRate:rate,startDate:String(s.admissionDate||s.createdAt||day()).slice(0,10),endDate:'',createdAt:new Date().toISOString(),v32AutoSeed:true,verified:false});
+  }
+ });
+}
+function daysIn(m){const [y,mm]=m.split('-').map(Number);return new Date(y,mm,0).getDate();}
+function calc(tid,m){
+ const first=m+'-01',last=m+'-'+String(daysIn(m)).padStart(2,'0');
+ const list=state.gwcSalaryAssignments.filter(a=>(!tid||String(a.teacherId)===String(tid))&&a.startDate<=last&&(!a.endDate||a.endDate>=first)).map(a=>{
+  const from=a.startDate>first?a.startDate:first,to=a.endDate&&a.endDate<last?a.endDate:last;
+  const n=Math.max(0,Math.floor((new Date(to+'T00:00:00')-new Date(from+'T00:00:00'))/86400000)+1);
+  const amount=Math.round(Number(a.monthlyRate||0)*n/daysIn(m)*100)/100;
+  return {...a,studentName:A(state.students).find(s=>String(s.id)===String(a.studentId))?.name||a.studentName||'Removed student',days:n,amount};
+ }).filter(a=>a.days>0);
+ return {list,total:list.reduce((v,a)=>v+a.amount,0)};
+}
+window.gwcV32SetRate=function(id){
+ if(!isAdmin())return;const a=state.gwcSalaryAssignments.find(x=>String(x.id)===String(id));if(!a)return;
+ const n=prompt('Is student ka monthly teacher payable amount (₹) enter karein:',String(a.monthlyRate||0));
+ if(n===null)return;if(!Number.isFinite(Number(n))||Number(n)<0){alert('Valid amount enter karein.');return;}
+ a.monthlyRate=Number(n);a.verified=true;a.updatedAt=new Date().toISOString();save();renderDashboard();
+};
+window.gwcV32VerifyAll=function(tid){
+ if(!isAdmin())return;const list=state.gwcSalaryAssignments.filter(a=>String(a.teacherId)===String(tid)&&!a.verified);
+ if(!list.length){alert('Is teacher ke sabhi assignment verified hain.');return;}
+ if(!confirm(list.length+' student assignments ko current monthly amount ke saath verified mark karein?'))return;
+ list.forEach(a=>a.verified=true);save();renderDashboard();
+};
+window.gwcV32EndAssignment=function(id){
+ if(!isAdmin())return;const a=state.gwcSalaryAssignments.find(x=>String(x.id)===String(id));if(!a)return;
+ const d=prompt('Last teaching date (YYYY-MM-DD):',day());if(!d)return;
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||d<a.startDate){alert('Date format/date range sahi nahi hai.');return;}
+ a.endDate=d;save();renderDashboard();
+};
+function salaryUI(){
+ seedExisting();const m=month(),teachers=A(state.users).filter(u=>u.role==='teacher');
+ const all=teachers.map(t=>({t,...calc(t.id,m)}));const grand=all.reduce((s,x)=>s+x.total,0);
+ return `<div class="dashhead"><div><h1>💰 Salary Management</h1><p class="muted">Per-student monthly payable · teacher-wise and overall monthly totals</p></div></div>
+ <section class="panel"><label>Month / Year</label><input type="month" value="${esc(m)}" onchange="gwcSetSalaryMonth(this.value)">
+ <h2>Overall monthly payable: ${money(grand)}</h2><div class="tablewrap"><table><thead><tr><th>Teacher</th><th>Students</th><th>Monthly total</th><th>Admin action</th></tr></thead><tbody>
+ ${all.map(x=>`<tr><td>${esc(x.t.name||x.t.username)}</td><td>${x.list.length}</td><td><b>${money(x.total)}</b></td><td><button class="outline" onclick="gwcSalaryDetails('${esc(x.t.id)}')">Student-wise details</button> <button class="outline" onclick="gwcV32VerifyAll('${esc(x.t.id)}')">Verify amounts</button></td></tr>`).join('')||'<tr><td colspan="4">No teachers found.</td></tr>'}
+ </tbody></table></div></section>
+ <section class="panel"><h3>Assigned student monthly payable</h3><p class="muted small">Existing assigned students are auto-listed from their current teacher/course. Admin must enter/verify the monthly payable amount for each student. A move/end date closes the old assignment for accurate historical calculation.</p>
+ <div class="tablewrap"><table><thead><tr><th>Student</th><th>Teacher</th><th>Monthly amount</th><th>Start – End</th><th>Status</th><th>Action</th></tr></thead><tbody>
+ ${state.gwcSalaryAssignments.map(a=>`<tr><td>${esc(a.studentName||'Student')}</td><td>${esc(tname(a.teacherId))}</td><td>${money(a.monthlyRate||0)}</td><td>${esc(a.startDate)} – ${esc(a.endDate||'Ongoing')}</td><td>${a.verified?'<span style="color:green">Verified</span>':'<span style="color:#b7791f">Needs verification</span>'}</td><td><button class="outline" onclick="gwcV32SetRate('${esc(a.id)}')">Edit amount</button> <button class="outline" onclick="gwcV32EndAssignment('${esc(a.id)}')">Close assignment</button></td></tr>`).join('')||'<tr><td colspan="6">No assignments found.</td></tr>'}
+ </tbody></table></div></section>`;
+}
+window.gwcSetSalaryMonth=m=>{window.gwcSalaryMonth=m;renderDashboard();};
+const baseDetails=window.gwcSalaryDetails;
+window.gwcSalaryDetails=function(tid){
+ if(!isAdmin())return;seedExisting();const m=month(),r=calc(tid,m);
+ const rows=r.list.map(x=>`<tr><td>${esc(x.studentName)}</td><td>${money(x.monthlyRate)}</td><td>${esc(x.startDate)} – ${esc(x.endDate||'Ongoing')}</td><td>${x.days}</td><td>${money(x.amount)}</td><td>${x.verified?'Verified':'Unverified'}</td></tr>`).join('');
+ const access=state.gwcSalaryAccess.includes(String(tid));
+ modal(`<h3>${esc(tname(tid))} · ${esc(m)}</h3><h2>Monthly payable: ${money(r.total)}</h2><p>Student-wise details access for teacher: ${access?'Enabled':'Disabled'}</p><button class="outline" onclick="gwcV32ToggleTeacherDetails('${esc(tid)}')">${access?'Revoke':'Allow'} teacher student-wise view</button><div class="tablewrap"><table><thead><tr><th>Student</th><th>Monthly payable</th><th>Assignment</th><th>Days</th><th>Payable</th><th>Verification</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No records.</td></tr>'}</tbody></table></div>`);
+};
+window.gwcV32ToggleTeacherDetails=function(tid){if(!isAdmin())return;init();const i=state.gwcSalaryAccess.indexOf(String(tid));if(i>=0)state.gwcSalaryAccess.splice(i,1);else state.gwcSalaryAccess.push(String(tid));save();gwcSalaryDetails(tid);};
+const oldRenderTab=renderTab;
+renderTab=function(){
+ if(tab==='salarymanagement'&&isAdmin()){seedExisting();const r=document.getElementById('dashContent');if(r){r.innerHTML=salaryUI();return;}}
+ oldRenderTab();
+};
+const oldMenu=menu;
+menu=function(){const a=oldMenu();if(isAdmin()&&!a.some(x=>x[0]==='salarymanagement'))a.push(['salarymanagement','💰 Salary Management']);return a;};
+// Dashboard message Hide is a reversible archive marker; conversation messages remain in the chat.
+window.gwcHideDashboardMessage=function(id){
+ if(!current)return;init();const uid=String(current.id),m=state.gwcMessages.find(x=>String(x.id)===String(id));if(!m)return;
+ m.dashboardHiddenBy=A(m.dashboardHiddenBy);if(!m.dashboardHiddenBy.map(String).includes(uid))m.dashboardHiddenBy.push(uid);
+ state.gwcDashboardArchive.push({id:'dasharch_'+Date.now()+'_'+id,messageId:String(id),userId:uid,archivedAt:new Date().toISOString()});
+ save();renderDashboard();
+};
+window.gwcV32ShowDashboardArchive=function(){
+ if(!current)return;init();const uid=String(current.id),items=state.gwcDashboardArchive.filter(x=>String(x.userId)===uid);
+ const rows=items.map(x=>{const m=state.gwcMessages.find(y=>String(y.id)===String(x.messageId));return `<div class="panel"><b>${esc(m?.senderName||'Message')}</b><p>${esc(m?.message||'Message unavailable')}</p><button class="outline" onclick="gwcV32UnhideDashboardMessage('${esc(x.id)}')">Unhide / Restore</button></div>`}).join('');
+ const root=document.getElementById('dashContent');if(root)root.innerHTML=`<h2>🗄️ My Help Desk Archive</h2>${rows||'<p>No archived dashboard messages.</p>'}<button class="outline" onclick="renderDashboard()">Back</button>`;
+};
+window.gwcV32UnhideDashboardMessage=function(id){
+ if(!current)return;init();const uid=String(current.id),i=state.gwcDashboardArchive.findIndex(x=>String(x.id)===String(id)&&String(x.userId)===uid);if(i<0)return;
+ const item=state.gwcDashboardArchive.splice(i,1)[0],m=state.gwcMessages.find(x=>String(x.id)===String(item.messageId));
+ if(m)m.dashboardHiddenBy=A(m.dashboardHiddenBy).filter(x=>String(x)!==uid);save();gwcV32ShowDashboardArchive();
+};
+window.gwcV32PermanentlyDeleteChat=function(key){
+ if(!isAdmin()||!confirm('Is conversation ke sabhi messages permanently delete honge. Kya jaari rakhein?'))return;
+ const [r,id]=String(key).split('|');const ids=state.gwcMessages.filter(m=>m.groupId?String(m.groupId)===String(id):(r==='admin'?String(m.senderRole)==='admin'||String(m.recipientRole)==='admin':(String(m.senderId)===String(id)||String(m.recipientId)===String(id)))).map(m=>String(m.id));
+ state.gwcMessages=state.gwcMessages.filter(m=>!ids.includes(String(m.id)));
+ state.gwcDashboardArchive=A(state.gwcDashboardArchive).filter(x=>!ids.includes(String(x.messageId)));
+ save();alert('Chat permanently deleted.');renderDashboard();
+};
+// Add search, Go to Chat and reversible archive link to dashboard inbox generated by V26.
+const dashBase=renderDashboard;
+renderDashboard=function(){
+ dashBase();
+ try{
+  const host=document.getElementById('dashContent'),panel=host?.querySelector('.gwc-v26-inbox');if(!panel||!current)return;
+  if(!panel.querySelector('.gwc-v32-search')){
+   const h=document.createElement('div');h.className='gwc-v32-search';h.innerHTML=`<input type="search" placeholder="Search student / teacher / message..." oninput="gwcV32FilterInbox(this.value)" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:9px;margin:8px 0"><button class="outline" type="button" onclick="gwcV32ShowDashboardArchive()">🗄️ Archive / Unhide</button>`;
+   panel.insertBefore(h,panel.children[1]||null);
+   panel.querySelectorAll('button[onclick*="gwcV21OpenChat"]').forEach(b=>{
+    const small=b.querySelector('small');if(small&&!small.innerHTML.includes('Go to Chat'))small.innerHTML=small.innerHTML.replace('Chat खोलने के लिए क्लिक करें','Go to Chat');
+   });
+  }
+ }catch(e){console.warn('GWC V32 inbox patch',e);}
+};
+window.gwcV32FilterInbox=function(q){
+ const panel=document.querySelector('.gwc-v26-inbox');if(!panel)return;const term=String(q||'').toLowerCase();
+ panel.querySelectorAll('button[onclick*="gwcV21OpenChat"]').forEach(b=>b.style.display=b.innerText.toLowerCase().includes(term)?'block':'none');
+};
+// Active chat: add permanent-delete action; archive remains separate and preserves messages when using dashboard hide.
+const rt=renderTab;
+renderTab=function(){rt();try{
+ if(tab==='mypayment'&&current?.role==='teacher'&&A(state.gwcSalaryAccess).map(String).includes(String(current.id))){
+  const host=document.getElementById('dashContent'),m=window.gwcTeacherPayMonth||month(),r=calc(current.id,m);
+  if(host){const box=document.createElement('section');box.className='panel';box.innerHTML='<h3>Admin-enabled student-wise details</h3><div class="tablewrap"><table><thead><tr><th>Student</th><th>Monthly payable</th><th>Days</th><th>Amount</th></tr></thead><tbody>'+r.list.map(x=>`<tr><td>${esc(x.studentName)}</td><td>${money(x.monthlyRate)}</td><td>${x.days}</td><td>${money(x.amount)}</td></tr>`).join('')+'</tbody></table></div>';host.appendChild(box);}
+ }
+ if(tab==='whatsapphelp'&&isAdmin()){
+  const head=document.querySelector('.gwcwa-main .gwcwa-head'),contact=document.querySelector('.gwcwa-contact.active'),raw=contact?.getAttribute('onclick')||'',match=raw.match(/gwcV21OpenChat\('([^']+)'\)/);
+  if(head&&match&&!head.querySelector('.gwc-v32-delete-chat')){
+   const b=document.createElement('button');b.className='gwc-v32-delete-chat';b.textContent='Permanently Delete Chat';b.style.cssText='float:right;margin-left:6px;background:#b91c1c;color:#fff;border:0;border-radius:7px;padding:6px 10px;font-weight:700';b.onclick=()=>gwcV32PermanentlyDeleteChat(match[1]);head.appendChild(b);
+  }
+ }
+}catch(e){console.warn('GWC V32 chat action',e);}};
+
+// Track assignment changes at save-time so teacher moves/removals close the previous dated row.
+let lastRoster=null;
+function rosterSnapshot(){
+ const out={};A(state.students).forEach(s=>{if(s.status==='deleted')return;out[String(s.id)]={studentId:s.id,name:s.name||'',teacherId:String(teacherOf(s)||''),courseId:String(s.courseId||''),rate:Number(s.teacherMonthlyPayable??s.teacherPayable??s.teacherAmount??0)};});return out;
+}
+function reconcileRoster(){
+ init();const now=day(),next=rosterSnapshot();
+ if(!lastRoster){lastRoster=next;return;}
+ Object.keys(lastRoster).forEach(id=>{
+  const prev=lastRoster[id],cur=next[id];
+  if(!cur||cur.teacherId!==prev.teacherId||cur.courseId!==prev.courseId){
+   const open=state.gwcSalaryAssignments.filter(a=>String(a.studentId)===id&&!a.endDate);
+   open.forEach(a=>{a.endDate=now;a.closedReason=!cur?'student removed':'student moved/changed course';a.closedAt=new Date().toISOString();});
+  }
+ });
+ Object.keys(next).forEach(id=>{
+  const cur=next[id],prev=lastRoster[id];
+  if(!prev||cur.teacherId!==prev.teacherId||cur.courseId!==prev.courseId){
+   if(cur.teacherId&&!state.gwcSalaryAssignments.some(a=>String(a.studentId)===id&&String(a.teacherId)===cur.teacherId&&!a.endDate)){
+    const st=A(state.students).find(s=>String(s.id)===id),c=st&&courseOf(st);
+    state.gwcSalaryAssignments.push({id:'v32move_'+id+'_'+Date.now(),studentId:cur.studentId,studentName:cur.name,courseName:c?.title||'',teacherId:cur.teacherId,monthlyRate:cur.rate,startDate:now,endDate:'',createdAt:new Date().toISOString(),v32AutoSeed:true,verified:false});
+   }
+  }
+ });
+ lastRoster=next;
+}
+lastRoster=rosterSnapshot();
+const originalSave=window.save;
+if(typeof originalSave==='function'){
+ window.save=function(){try{reconcileRoster();}catch(e){console.warn('GWC V32 roster reconciliation',e);}return originalSave.apply(this,arguments);};
+}
 })();
 </script>
