@@ -1,0 +1,20 @@
+GWC V48.2 OFFLINE TEST REPORT
+
+PASS
+- Base V48.1 archive opened; all 57 original entries extracted and retained.
+- Google Workspace menu entry added to Admin, Teacher and Sub-admin.
+- Admin UI supports add existing Sheet URL, create new Sheet with optional Drive Folder ID, open, rename/title edit, access assignment, and remove.
+- Teacher/Sub-admin UI lists only backend-authorized assigned sheets and exposes Open only.
+- Apps Script Workspace registry stored in Script Properties separately from GWC main JSON state.
+- Apps Script validates actor credentials against current GWC state; Admin-only mutations checked server-side; open permission checked per role and account ID.
+- Node syntax: all 33 inline JavaScript blocks passed.
+- Code.gs and server.js passed Node syntax check.
+- package.json and appsscript.json parsed successfully.
+- package.json and appsscript.json remain byte-for-byte unchanged.
+
+LIMITATIONS / NOT TESTED
+- Google Picker visual folder selection is not included; use Drive Folder ID.
+- Remove moves file to Drive Trash, not irreversible permanent deletion.
+- GWC portal permission does not itself grant Google Drive file-sharing permission.
+- Apps Script owner must authorize Drive/Spreadsheet scopes and deploy updated Code.gs.
+- Live Apps Script, Google Drive, Sheets, Render deployment, user login, and real teacher/subadmin accounts were not tested.
