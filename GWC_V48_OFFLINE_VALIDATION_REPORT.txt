@@ -1,0 +1,33 @@
+GWC V48 OFFLINE VALIDATION REPORT
+Source: user-uploaded GWC_V47_JOIN_CLASS_ACCOUNT_FLOW_REPAIR.zip
+Changes: index.html only, plus this report and README.
+
+Meet join changes:
+- Student join entry points route through one final V48 handler.
+- Resolves the student's assigned course using courseId/requestedCourseId.
+- If course.teacherId is explicitly set, only that active assigned teacher's profile Meet URL is accepted. It does not silently open an old course-level URL when that assigned teacher's link is missing.
+- Legacy course Meet URL is a fallback only when the course has no explicit teacherId mapping.
+- Validates HTTPS meet.google.com URL and standard meeting-code path.
+- Opens the normal HTTPS Meet URL directly from the user click; no forced AccountChooser redirect, no attempt to change or store Google credentials.
+- Existing non-student join handlers are delegated to their previous handlers.
+- Added read-only diagnostic window.gwcV48MeetDiagnostic() for support.
+
+Account persistence limitation:
+- GWC student login ID/password is separate from Google sign-in. A website cannot securely choose, save, or force a Google account for Meet without Google's own account/session controls and user authorization.
+- Android Meet/Chrome may reuse an already signed-in Google account, but Google can still show account selection/sign-in. V48 does not promise to eliminate that Google-controlled prompt.
+- Select the intended Google account in the Meet app/Chrome once and keep that Google account signed in. If the prompt continues, check which accounts are signed into Meet and Chrome; GWC cannot override this.
+
+Preserved byte-for-byte:
+- server.js, Code.gs, package.json, appsscript.json.
+- All other source/readme files from V47 except the added V48 docs.
+- No IDs, passwords, account records, settings, database schema, Apps Script endpoint, security secrets, or cloud data were intentionally modified.
+
+Offline checks:
+- ZIP archive integrity checked.
+- 33 inline JavaScript blocks passed Node.js syntax checks.
+- server.js and Code.gs passed Node.js syntax checks.
+- package.json and appsscript.json parsed as valid JSON.
+NOT TESTED:
+- Live Render / Apps Script / Sheets / Drive.
+- Production role logins, Google account persistence, Android Meet app handoff, or real class joining.
+- No real-device or production certification is claimed.
