@@ -1,9 +1,0 @@
-GWC V48 OFFLINE VALIDATION REPORT
-Source: GWC_V47_JOIN_CLASS_ACCOUNT_FLOW_REPAIR.zip
-- ZIP integrity verified.
-- index.html updated additively; 33 inline JavaScript blocks passed Node.js syntax checks.
-- server.js and Code.gs passed Node.js syntax checks.
-- package.json and appsscript.json JSON parsing passed.
-- Code.gs, server.js, package.json and appsscript.json SHA-256 hashes match the uploaded V47 archive exactly.
-- No production credentials, IDs, user accounts, login/password records, or database contents were available for live validation.
-- Live Render/Apps Script/Sheets/Drive and Android Google Meet behavior were not tested.
