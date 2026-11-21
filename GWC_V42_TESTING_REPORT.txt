@@ -1,0 +1,46 @@
+GWC V42 STATIC TEST REPORT
+
+Inline script blocks found: 27
+PASS inline script 1 syntax
+PASS inline script 2 syntax
+PASS inline script 3 syntax
+PASS inline script 4 syntax
+PASS inline script 5 syntax
+PASS inline script 6 syntax
+PASS inline script 7 syntax
+PASS inline script 8 syntax
+PASS inline script 9 syntax
+PASS inline script 10 syntax
+PASS inline script 11 syntax
+PASS inline script 12 syntax
+PASS inline script 13 syntax
+PASS inline script 14 syntax
+PASS inline script 15 syntax
+PASS inline script 16 syntax
+PASS inline script 17 syntax
+PASS inline script 18 syntax
+PASS inline script 19 syntax
+PASS inline script 20 syntax
+PASS inline script 21 syntax
+PASS inline script 22 syntax
+PASS inline script 23 syntax
+PASS inline script 24 syntax
+PASS inline script 25 syntax
+PASS inline script 26 syntax
+PASS inline script 27 syntax
+PASS server.js syntax
+PASS Code.gs syntax
+PASS package.json JSON
+PASS appsscript.json JSON
+PASS Code.gs unchanged from V33.5 base
+PASS server.js unchanged from V33.5 base
+PASS package.json unchanged from V33.5 base
+PASS appsscript.json unchanged from V33.5 base
+PASS Student account chooser normal+force join hooks
+PASS Admin Permanent Delete All adjacent to View All
+PASS Latest Message dashboard label
+PASS Monthly Parents Feedback alert
+PASS Last Date of Class column
+PASS Teacher group reconciliation
+PASS Today Notes standalone navigation suppression
+LIMIT: no live Render/Google Sheets/Android/WhatsApp API end-to-end test was possible in this offline source build.
