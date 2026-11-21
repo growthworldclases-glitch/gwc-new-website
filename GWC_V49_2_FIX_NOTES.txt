@@ -1,0 +1,9 @@
+GWC V49.2 — Salary Management menu visibility fix
+
+Root cause: GWC V34 menu cleanup filtered out both `salarymanagement` and the text “Salary Management” after the earlier Admin menu extension added it.
+
+Fix: The menu cleanup now preserves the `salarymanagement` entry for `current.role === "admin"` and preserves `mypayment` for `current.role === "teacher"`, while continuing to filter unrelated legacy menu entries. The Admin renderer route for `tab === "salarymanagement"` is retained.
+
+Admin menu label: 💰 Salary Management
+
+No credentials, account records, login roles, database schema, server code, or salary records were intentionally changed in this focused patch. Not yet deployed or tested against live Google Workspace data. Test on a staging copy first.
