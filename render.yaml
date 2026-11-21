@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: gwc-v49-staging
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: GWC_API_URL
+        sync: false
+      - key: GWC_PROXY_SECRET
+        sync: false
+      - key: GWC_APP_VERSION
+        value: 24.0-secure
