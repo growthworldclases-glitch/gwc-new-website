@@ -1,0 +1,14 @@
+GWC V49.1 — ADMIN SALARY MENU FIX
+
+Issue:
+A later Admin renderer override was hiding the salarymanagement tab with a placeholder, even though the Salary Management menu and page implementation were present.
+
+Fix:
+Removed salarymanagement from that hide condition. The Admin tab now passes through to the existing Salary Management renderer.
+
+Admin menu label:
+💰 Salary Management
+
+No login, password, account, role, database, backend or existing salary calculation logic was changed in this focused fix.
+
+Please test on a staging/test deployment before replacing the live website. This package has not been tested against live Google Workspace data or production credentials.
