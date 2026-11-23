@@ -1,0 +1,34 @@
+GWC V51 OFFLINE VALIDATION REPORT
+Base: GWC_V50_LIMITED_UPDATE.zip
+
+Included:
+- Preserves V50 Student Portal Class Time and Admin Course Class Time display.
+- Adds Admin-only Website Access Blocklist UI in existing settings-backed state.
+- Adds server-side Apps Script shared-secret gate for GET and POST requests.
+- Apps Script checks the calling website domain against Admin blocklist before reading/writing state.
+- Apps Script requires current Admin credentials when the blocked-domain list is changed.
+- Render proxy injects secret and caller domain server-side; browser bundle does not contain the secret.
+- Cloudflare Worker injects secret and caller domain server-side; Worker static asset deployment config included.
+- Render static caching remains enabled.
+- Root index.html and public/index.html are identical.
+
+Offline checks:
+- ZIP integrity (checked after packaging).
+- Code.gs JavaScript syntax: PASS (Node syntax parser; Apps Script runtime not emulated).
+- server.js syntax: PASS.
+- worker.js ES module syntax: PASS.
+- V51 Admin UI blocklist script syntax: PASS.
+- Modified googleApi function syntax: PASS.
+
+Not tested / requires account access:
+- Apps Script Script Property configuration and redeployment.
+- Render environment variable configuration and live deployment.
+- Cloudflare secret, Worker deployment, custom-domain DNS cutover.
+- Live Google Sheet, login, fees, Drive upload, class Meet and student/teacher workflows.
+- Actual monthly Render bandwidth usage.
+
+Safety:
+- No live data migration, reset, deletion, credential change, or deployment was performed.
+- growthworldclasses.com is NOT pre-blocked; Admin must explicitly add it.
+- Other domains remain allowed unless Admin explicitly adds them.
+- A shared secret must be set privately and identically in Apps Script and the active proxy. Do not put it in browser code or commit it to source control.
