@@ -1,9 +1,0 @@
-GWC V51 DEPLOYMENT CHECKLIST
-[ ] Generate a unique secret (at least 32 random characters) and store it securely.
-[ ] Add Script Property GWC_PROXY_SECRET in Apps Script.
-[ ] Deploy new Apps Script Web App version.
-[ ] Set same GWC_PROXY_SECRET in Render Environment; verify existing GWC_API_URL.
-[ ] Redeploy Render and test /healthz, Google sync, login, uploads, fees, teacher/student portals.
-[ ] Admin adds growthworldclasses.com to Website Access Blocklist only when ready to deny it.
-[ ] For bandwidth migration, deploy Cloudflare Worker with GWC_PROXY_SECRET and GWC_API_URL, publish Static Assets, attach custom domain, test all flows.
-[ ] Only after Cloudflare checks pass, change DNS and then consider stopping Render.

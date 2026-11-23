@@ -1,6 +1,0 @@
-GWC V53 VALIDATION REPORT
-- ZIP integrity: PASS (testzip returned no corrupt entries).
-- Root and public index.html: identical.
-- Node syntax: server.js PASS; worker.js PASS; Code.gs JavaScript syntax PASS.
-- Embedded HTML scripts: 32 of 33 PASS. Script #11 has the same pre-existing syntax-check failure in the salary-statement popup string in both V52 and V53; this was not introduced by the cleanup changes and was not altered to avoid unrelated changes.
-- Live Apps Script authorization, Google Drive contents, Admin credential verification and hosting behavior cannot be validated without deployment/account access.
