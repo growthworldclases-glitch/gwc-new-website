@@ -1,0 +1,31 @@
+GWC V49.4 RAILWAY DOMAIN BLOCK — OFFLINE VALIDATION
+=====================================================
+Base: user-provided GWC_V49_3_RAILWAY_DRIVE_OPTIMIZED.zip
+
+Changes:
+- Added exact-host deny middleware in server.js for:
+  growthworldclasses.com and www.growthworldclasses.com.
+- Other hostnames are not blocked by this middleware.
+- Added Hindi domain-block and deployment limitation documentation.
+- Existing Code.gs, HTML, package.json, appsscript.json, assets, and all
+  pre-existing project entries are retained byte-for-byte.
+- No login/password, roles, fees, courses, settings, spreadsheet schema,
+  Drive storage or Apps Script business logic changes were made.
+
+Security scope:
+- Blocks requests reaching this Railway server with the exact blocked Host.
+- Does NOT block direct access to the Apps Script /exec URL.
+- Does NOT affect a separate hosting provider unless its traffic is routed
+  through this Railway service.
+- A true Apps Script endpoint lock needs coordinated shared-secret auth in
+  both Code.gs and the proxy; not silently claimed here.
+
+Offline checks:
+- ZIP integrity checked.
+- package.json, appsscript.json, railway.json JSON parse checked.
+- server.js and worker.js syntax checked with Node.js.
+- HTML and Code.gs preserved byte-for-byte from base ZIP.
+
+Not tested:
+- Live Railway deployment, DNS, Apps Script, Google Sheet, Drive, login,
+  fee flows, uploads/downloads or end-to-end production behavior.
