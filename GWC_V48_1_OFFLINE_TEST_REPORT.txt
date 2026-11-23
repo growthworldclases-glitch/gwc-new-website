@@ -1,0 +1,19 @@
+GWC V48.1 OFFLINE TEST REPORT
+
+PASS
+- Source ZIP opened and integrity verified.
+- index.html modified additively; other original archive files retained.
+- 33 inline JavaScript script blocks passed `node --check`.
+- server.js and Code.gs passed Node syntax checks.
+- package.json and appsscript.json parsed as valid JSON.
+- SHA-256 checks confirm Code.gs, server.js, package.json and appsscript.json unchanged from uploaded V47.
+- Meet resolution order now prefers assigned teacher Meet URL, with course URL fallback.
+- Fee Summary lists loaded fee requests across months in descending submission timestamp and exposes existing fee actions plus replace action.
+
+NOT TESTED
+- Production login and live cloud sync.
+- Google Apps Script / Sheets / Drive round trips.
+- Existing historical slip file recovery.
+- Android Chrome / Google Meet account persistence or app handoff.
+- Google Workspace Picker / OAuth integration (not implemented).
+- Credentials directory, batch availability board, and forced-start lifecycle additions (not implemented).

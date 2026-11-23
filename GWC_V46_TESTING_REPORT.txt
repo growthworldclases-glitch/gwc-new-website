@@ -1,0 +1,9 @@
+GWC V46 OFFLINE VALIDATION REPORT
+- Uploaded V45 archive extracted and reviewed.
+- ZIP integrity checked after packaging.
+- All 31 extracted inline JavaScript blocks passed Node.js syntax checks.
+- server.js and Code.gs syntax checked with Node.js.
+- package.json and appsscript.json JSON parsing checked.
+- Code.gs, server.js, package.json and appsscript.json SHA-256 hashes compared with uploaded V45; all four are byte-for-byte unchanged.
+- Source checks confirm the cross-portal poll is scheduled once per minute and calls the final guarded refresh function; local writes use one debounced/serialized save pipeline; failed saves retain dirty state and retry after 15 seconds; Help Desk redraw cadence is one minute.
+NOT TESTED: live Render deployment; real Google Apps Script/Sheets read-write round trip; simultaneous multi-role edits; Admin/Teacher/Subadmin/Student production logins; Android/PC browser UI; Drive uploads; external WhatsApp API. No guarantee of ten-year crash-free operation is made.
