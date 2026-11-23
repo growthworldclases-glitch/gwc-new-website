@@ -1,0 +1,34 @@
+GWC V49.3 RAILWAY PACKAGE — OFFLINE VALIDATION
+================================================
+Base: user-uploaded GWC_V49_3_ADMIN_CLASS_TIMINGS_CANDIDATE.zip
+
+Preservation:
+- All original archive entries are included.
+- index.html, public/index.html, Code.gs, package.json, appsscript.json,
+  worker.js, wrangler.toml, assets and existing reports/readmes are retained.
+- Only server.js was modified: explicit 0.0.0.0 bind while preserving Railway PORT.
+- Added railway.json, .env.example, .gitignore and RAILWAY_GITHUB_SETUP_HINDI.txt.
+- No login/account/role/password/fee/course/settings/schema or Apps Script code
+  changes were made.
+- No live data migration/reset was performed.
+
+Storage architecture:
+- Existing app state remains in the existing Google Spreadsheet GWC_Storage,
+  referenced by Script Property GWC_SPREADSHEET_ID.
+- Drive remains used for files/attachments/archive/Workspace operations.
+- No Railway database or volume is required or configured.
+- This is NOT a migration of all structured state from Sheets into Drive.
+
+Offline tests:
+- ZIP integrity checked.
+- package.json, appsscript.json and railway.json parse as JSON.
+- server.js, worker.js and Code.gs syntax checked with Node.js.
+- All inline JavaScript blocks in index.html syntax checked with Node.js.
+- index.html and public/index.html byte equality checked.
+- Original archive entries byte-for-byte preservation checked except server.js.
+
+Not tested:
+- GitHub upload/connection or Railway build/deploy.
+- Live Railway /healthz or generated domain.
+- Google Apps Script execution, Google Sheets, Drive operations, live credentials,
+  account login, fee/payment, Meet, Workspace or end-to-end workflows.
