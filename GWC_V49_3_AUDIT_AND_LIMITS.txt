@@ -1,0 +1,19 @@
+GWC V49.3 RAILWAY SECURITY UPDATE — SUPERSEDES EARLIER CANDIDATE NOTES
+========================================================================
+This update adds a coordinated signed Railway-to-Apps-Script proxy and an
+Admin-managed Website Domain Security screen. Earlier reports in this archive
+describe the older V23 security baseline and should be read as historical notes;
+this report and GWC_V49_3_RAILWAY_VALIDATION_REPORT.txt describe the latest ZIP.
+
+The security feature is not active merely by uploading the ZIP. Follow the exact
+setup order in GWC_V49_3_RAILWAY_SIGNED_PROXY_DOMAIN_SECURITY_HINDI.txt:
+1. Set the same random GWC_PROXY_SECRET in the existing Apps Script Script
+   Properties and Railway Variables.
+2. Deploy the updated Code.gs as a new Web App version.
+3. Deploy the updated GitHub repository to the existing Railway service.
+4. Verify /healthz reports proxyAuthenticationConfigured=true.
+5. Test all login/data/Drive workflows before production domain switch.
+
+Domain blocking is enforced at the Railway proxy for browser requests using a
+blocked Host/Origin/Referer. This is not a replacement for full per-user
+server-side authorization; non-browser HTTP clients can forge headers.

@@ -1,0 +1,112 @@
+GWC V49.3 — RAILWAY SIGNED-PROXY + ADMIN DOMAIN BLOCK UPDATE
+===========================================================
+
+This package is based on the user-provided
+GWC_V49_3_RAILWAY_DRIVE_OPTIMIZED.zip. Existing application pages, app state
+schema, login/account data structures, fees, courses, settings, Apps Script
+storage functions, Drive file operations and existing reports are retained.
+The changes are additive except for the required Apps Script request wrapper
+and removal of the Apps Script URL from browser source.
+
+WHAT CHANGED
+------------
+1. Railway server serves ONLY /public. Code.gs, README, env files and project
+   files are no longer exposed by express.static(__dirname).
+2. Apps Script URL is no longer embedded in the browser HTML. It is configured
+   only in Railway Variable GWC_API_URL.
+3. All Railway-to-Apps-Script GET and POST calls use HMAC-SHA256 signatures.
+   Apps Script rejects unsigned direct GET/POST requests and rejects replayed
+   nonces / timestamps outside a 5-minute window.
+4. New Admin > Website Domain Security page lets Admin add/remove blocked domain
+   names. The list is stored in the existing GWC state (Google Sheet), not in a
+   new database. Exact domain and all its subdomains are blocked by the Railway
+   proxy. The server refreshes the list at most every 15 seconds.
+5. /healthz reports whether proxy authentication is configured.
+6. Existing Google Drive chunk upload proxy remains available.
+7. No Railway database or Persistent Volume is required. Existing structured
+   GWC state remains in the same Google Spreadsheet; attachments/files remain
+   in Google Drive.
+
+IMPORTANT SECURITY LIMITS
+-------------------------
+- The HMAC protects the Apps Script endpoint from unsigned direct requests.
+  It does NOT replace proper per-user server-side authorization for every
+  application action. Existing legacy login/state model remains unchanged.
+- Domain blocking is enforced by the Railway proxy for requests whose Host,
+  Origin or Referer identifies a blocked domain. This is intended to stop normal
+  browser use through a blocked website domain. Non-browser clients can forge
+  HTTP headers; this is not a substitute for user authentication or a strict
+  origin allowlist.
+- When a domain is blocked, that domain cannot be used to open/manage GWC.
+  Keep the Railway-generated domain or a separate admin domain unblocked so
+  Admin can still sign in and remove a mistaken block.
+- Google Apps Script Web App deployment remains "Execute as Me" and "Anyone"
+  because the signed proxy is the gate. Direct unsigned requests are rejected
+  in code. Do not deploy an older Code.gs version after this change.
+- Keep GWC_PROXY_SECRET private. Never put it in HTML, GitHub, chat, README or
+  .env committed to GitHub.
+
+REQUIRED ONE-TIME SETUP — DO THIS ORDER
+---------------------------------------
+A. Create one strong random secret locally:
+   Use OpenSSL:
+     openssl rand -hex 32
+   Or use a password manager to generate at least 64 cryptographically random
+   hexadecimal characters.
+   Do NOT use the example placeholder.
+
+B. Google Apps Script:
+   1. Open the SAME existing Apps Script project connected to GWC.
+   2. Back up/download the current Code.gs first.
+   3. Replace Code.gs with this ZIP's Code.gs.
+   4. Apps Script > Project Settings > Script Properties:
+      Name: GWC_PROXY_SECRET
+      Value: paste the generated secret.
+   5. Save and Deploy > Manage deployments > Edit existing Web App deployment.
+      Select New version and deploy. Keep Execute as Me and current access
+      setting (Anyone) unchanged.
+   6. Do not change GWC_SPREADSHEET_ID, GWC_DRIVE_FOLDER_ID or existing Sheet.
+
+C. Railway:
+   1. Update the EXISTING GitHub repository with extracted files from this ZIP.
+      Do not upload the ZIP file itself. Do not create a second Railway service.
+   2. Railway Service > Variables:
+      GWC_API_URL = the same existing Apps Script /exec URL
+      GWC_PROXY_SECRET = exactly the same secret set in Script Properties
+   3. Build command: npm install (or leave Railpack automatic if successful).
+      Start command: npm start
+      No Railway Volume, PostgreSQL or Redis is required.
+   4. Deploy and wait for deployment success.
+   5. Open /healthz on the Railway domain. It must show
+      "proxyAuthenticationConfigured": true.
+   6. Test Admin, Student, Teacher, save, refresh, Drive upload/download and
+      Google Meet links before switching the public custom domain.
+
+D. Admin domain block:
+   1. Sign in as Admin through an unblocked GWC domain.
+   2. Open "Website Domain Security" in Admin menu.
+   3. Enter a domain such as old-example.com (no path) and Block Domain.
+   4. It applies within about 15 seconds to that domain and its subdomains.
+   5. To undo, use an unblocked domain, open the same page and click Unblock.
+
+ROLLBACK
+--------
+If API calls fail after Apps Script deployment, verify that Railway and Apps
+Script contain the exact same GWC_PROXY_SECRET and that GWC_API_URL is the
+current /exec URL. If necessary restore the backed-up Code.gs and prior Railway
+Git commit together. Do not reset or replace the live spreadsheet.
+
+OFFLINE VALIDATION
+------------------
+This package can be checked for ZIP integrity, JSON syntax and JavaScript syntax.
+No live Google account, Apps Script, Sheet, Drive, Railway, custom domain or
+student/admin end-to-end login test can be performed from this build environment.
+A successful offline test is not a live deployment guarantee.
+
+ADMIN CONTROL
+-------------
+Domain add/remove asks for the current Admin password again. The Apps Script
+backend compares it with the existing Admin credentials stored in the existing
+GWC state before updating only the gwcBlockedDomains field. No new account or
+password is created. The UI is admin-only; backend password verification is the
+authoritative check.

@@ -1,0 +1,21 @@
+GWC V49.3 — Railway setup (signed proxy + Admin domain block)
+
+Use the companion file:
+GWC_V49_3_RAILWAY_SIGNED_PROXY_DOMAIN_SECURITY_HINDI.txt
+
+CRITICAL: Before Railway deploy, update the SAME Apps Script project's Code.gs,
+set Script Property GWC_PROXY_SECRET to a random 64-hex-character secret, and
+deploy a NEW Web App version. Then set the identical value in Railway Variables
+along with the existing GWC_API_URL. If these are not both configured, GWC API
+calls will be rejected.
+
+Do not change the existing Spreadsheet ID, Drive Folder ID, Admin login,
+passwords, or live data. No Railway Volume/database is needed.
+
+Railway:
+- Root: repository root
+- Build: npm install (or automatic Railpack)
+- Start: npm start
+- Variables: GWC_API_URL and GWC_PROXY_SECRET
+- Health check: /healthz
+- No wrangler deploy command
