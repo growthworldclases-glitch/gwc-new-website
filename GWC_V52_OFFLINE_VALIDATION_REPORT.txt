@@ -1,8 +1,0 @@
-GWC V52 — OFFLINE VALIDATION REPORT
-Base: GWC_V51_RAILWAY_NETWORK_OPTIMIZED.zip
-Scope: additive Cloud Run deployment documentation only; no app source changes.
-Added: CLOUD_RUN_DEPLOY_HINDI_V52.txt; GWC_V52_OFFLINE_VALIDATION_REPORT.txt
-Preserved: all V51 application files, including server.js, package.json, Code.gs, index.html, public/, worker.js, appsscript.json and existing documentation.
-Checks: source ZIP integrity passed; output ZIP integrity passed; package.json parsed; server.js byte-for-byte unchanged; Code.gs byte-for-byte unchanged.
-Not performed: live Cloud Run deployment, Apps Script/Sheets/Drive end-to-end tests, domain cutover, billing validation, 100/200-user load test.
-Security note: inherited wrangler.toml contains an Apps Script endpoint. Do not publish repository publicly without reviewing it. Set GWC_API_URL using Secret Manager.

@@ -1,5 +1,0 @@
-SUPERSEDED BY V55: V54 में Apps Script secret authentication लागू नहीं था। V55 के लिए GWC_API_SECRET, Code.gs redeploy और पुरानी अलग deployments disable करने के निर्देश नई V55 guide में देखें।\n\nGWC HOSTYCARE DOMAIN SECURITY V54
-Allowed hosts: growthworldclasess.com and www.growthworldclasess.com.
-Server applies Host allowlist and Origin/Referer validation; frontend hard-coded Apps Script URL removed.
-Deploy as Node.js app (Node 18+, preferably 20), separate app root outside public_html, startup server.js, npm install, set GWC_API_URL to the existing Apps Script /exec URL as a private environment variable. Point both domain aliases to the app and enable SSL.
-IMPORTANT: this does not revoke an old Apps Script deployment or stop a separately running old server. Old deployment must be stopped and Apps Script backend must receive server-side authentication/secret validation separately. Origin/Referer checks are not strong authentication. Back up Sheets/Drive/Apps Script and old host; do not shut down old service until all tests pass. Not live deployed or end-to-end tested.
