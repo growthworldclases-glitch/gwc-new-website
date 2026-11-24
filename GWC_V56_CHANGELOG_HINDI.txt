@@ -1,0 +1,19 @@
+GWC V56 — HOSTYCARE DOMAIN LOCK + PUBLISH CHECK
+
+Base: user-uploaded GWC_HOSTYCARE_DOMAIN_SECURE_V55.zip.
+
+Keval hosting/security/sync cadence changes:
+1. Existing app, screens, roles, login data structures, course/fee/student/teacher workflows and Apps Script storage logic retained.
+2. Node/Worker host allowlist exact growthworldclasess.com only. HTTPS Origin/Referer must match exact apex. www and lookalike hostnames rejected; www can be redirected to apex at DNS/hosting layer.
+3. Existing private GWC_API_SECRET authentication retained between HostyCare server and Apps Script. Frontend does not contain the secret or direct Apps Script deployment URL.
+4. Admin button label “Publish Now”; action saves current state to Google Apps Script immediately.
+5. Other open portals check cloud state every 60 seconds; only changed state is applied, and only when no local unsaved edits/form is active. No full page reload is done.
+6. This is 60-second polling, not true push/WebSocket. The Admin save is immediate after request completes; other portals update on their next successful poll (normally within about 60 seconds). Zero-delay cannot be guaranteed without separate push infrastructure.
+
+CRITICAL SECURITY LIMITS:
+- Same Apps Script deployment must be redeployed with this Code.gs and Script Property GWC_API_SECRET. Then older ZIPs that call this same deployment without the secret will be rejected.
+- Any separate obsolete Apps Script deployment URL must be disabled manually in Apps Script > Deploy > Manage deployments. A ZIP cannot disable a separate Google deployment by itself.
+- Domain/Origin checks are not cryptographic client identity; secret validation protects the Apps Script backend from old direct clients. Keep the secret private and rotate if exposed.
+- Deployment and end-to-end tests are not performed by creating this ZIP. Backup first and follow HostyCare guide.
+
+HOSTINGER NOTE: The project is Node.js + Express and can be deployed as a Hostinger Node.js Web App on supported Business/Unlimited or Cloud plans. Use the included HOSTINGER_NODEJS_DEPLOY_GUIDE_HINDI_V56.txt, not the cPanel-only HostyCare steps, when the target is Hostinger hPanel.

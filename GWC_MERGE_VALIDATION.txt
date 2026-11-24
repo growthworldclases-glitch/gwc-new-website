@@ -1,0 +1,10 @@
+GWC V23 + V49.2 MERGED ZIP — OFFLINE VALIDATION
+- ZIP structure generated from the supplied V49.2 archive, retaining its cumulative app UI/features and assets.
+- Root index.html and public/index.html are identical.
+- 33 inline JavaScript blocks in each HTML file passed Node.js syntax checking.
+- Code.gs passed Node.js syntax checking (checked as JavaScript source).
+- server.js and worker.js passed Node.js syntax checking.
+- V23 data integrity safeguards remain present in Code.gs.
+- HMAC/domain/origin lock identifiers and checks are absent from Code.gs, worker.js, server.js, and wrangler.toml.
+- JSON manifests/configuration parsed where applicable.
+- Live Google Apps Script, Google Sheets, Drive, user logins, assigned course/batch data, fee operations, and deployment were not available for end-to-end testing.

@@ -1,0 +1,15 @@
+GWC V57 — ALL OLD FEATURES PRESERVED + OFFLINE REGRESSION TEST
+
+Base: GWC_HOSTYCARE_DOMAIN_SECURE_V55.zip + V56 security/domain/sync updates.
+
+V57 changes:
+1. V56 ke sabhi source files aur security/sync behavior ko retain kiya.
+2. Admin Publish Now button ka label har state mein consistent kiya.
+3. Server domain-gate comment ko exact canonical hostname ke mutabik update kiya.
+4. Dependency-free automated offline test suite tests/validate.js add ki; `npm test` se chalayein.
+5. 19/19 offline validation checks pass hue.
+6. Hindi regression report add ki, jisme live testing ki remaining checklist clearly di gayi hai.
+
+Purane application workflows, roles, credentials/data structures, Apps Script business logic aur UI modules ko jaanbujhkar redesign/change nahi kiya gaya.
+
+NOTE: HostyCare account, live DNS/SSL, Apps Script, Google Sheets, Drive aur real user logins par live test is ZIP banate waqt possible nahi tha. Isliye 19/19 ka matlab offline source/package checks pass hain, 100% live production guarantee nahi.

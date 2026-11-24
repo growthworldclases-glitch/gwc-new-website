@@ -1,0 +1,20 @@
+GWC V58 — OFFLINE VALIDATION REPORT
+Base: uploaded GWC_HOSTYCARE_DOMAIN_SECURE_V57_FINAL.zip
+Date: 2026-11-24
+
+Validation performed after packaging:
+- package.json parse and npm test
+- Node server JavaScript syntax
+- worker ES module syntax
+- Apps Script Code.gs JavaScript grammar (not Apps Script runtime)
+- Code.gs.js byte identity with Code.gs
+- root index.html and public/index.html byte identity
+- inline JavaScript syntax in both HTML files
+- both HTML copies poll guarded remote state every 25 seconds
+- Publish Now action remains present
+- no literal Apps Script deployment URL in browser HTML
+- exact canonical hostname allowlist and private API secret checks remain
+- Drive upload route retained
+- ZIP integrity
+
+Offline checks do not replace live production testing. Verify existing Admin/Teacher/Student/Subadmin logins, sheet load/save, Drive uploads, and a second device's publish update after deployment. Preserve backups and do not disable old hosting until tests pass.

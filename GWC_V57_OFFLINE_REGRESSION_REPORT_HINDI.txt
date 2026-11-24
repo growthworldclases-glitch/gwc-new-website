@@ -1,0 +1,46 @@
+GWC V57 — OFFLINE REGRESSION / BUNDLE VALIDATION REPORT
+
+Source baseline: user-uploaded GWC_HOSTYCARE_DOMAIN_SECURE_V55.zip, with V56 security/sync changes retained.
+Validation date: 2026-11-24
+
+RESULT: 19/19 automated offline checks PASS.
+
+Checks performed:
+1. package.json parses.
+2. server.js JavaScript syntax passes.
+3. worker.js ES-module syntax passes.
+4. Code.gs JavaScript grammar syntax passes (this is not a Google Apps Script runtime test).
+5. Code.gs.js is byte-identical to Code.gs.
+6. root index.html is byte-identical to public/index.html.
+7. All 35 inline JavaScript blocks in index.html parse.
+8. All 35 inline JavaScript blocks in public/index.html parse.
+9. Both website copies contain guarded 60-second remote-state polling.
+10. Both website copies contain the Publish Now action and consistent button label.
+11. Neither website HTML contains a literal Apps Script deployment URL.
+12. Node server allowlist contains only growthworldclasess.com.
+13. Node server requires a private GWC_API_SECRET of at least 32 characters.
+14. Existing Drive upload chunk route remains present.
+15. Apps Script checks the private proxy secret on GET and POST.
+16. HostyCare deployment guide and V56 changelog are included.
+17. ZIP integrity test passes after packaging.
+18. V55 source inventory is retained; V57 adds only validation/test documentation and a test script, plus tiny UI-label/comment consistency edits.
+19. npm test runs the dependency-free offline validation script.
+
+OLD-FEATURE PRESERVATION REVIEW:
+- Compared V55 and V56 archive inventories: no V55 files were removed in V56.
+- Compared core files: Code.gs, appsscript.json, package.json before V57 test-script addition, assets and supporting business-logic files were retained; V56's intended changes were limited to 60-second guarded polling, Publish Now wording, canonical domain allowlist and deployment/security documentation.
+- V57 does not intentionally modify business workflows, storage schema, login credentials, role logic, fee logic, student/teacher modules, or Drive/Sheets business logic.
+- The test bundle cannot prove every old feature works against a real Google Sheet, Drive, Apps Script deployment, DNS/SSL or HostyCare account.
+
+LIVE TESTS NOT PERFORMED (must be checked after deployment):
+- Admin/Subadmin/Teacher/Student login with existing credentials.
+- Student assignment, courses, batches, fee slips, fee validity and reminders.
+- Homework, tests, doubts, leave workflows, private notes and Help Desk.
+- Google Sheet load/save and recovery/backup behavior.
+- Drive upload, chunk upload, archive/restore and file deletion.
+- Admin Publish Now observed from a second real browser/device.
+- Wrong-host 403, canonical-domain HTTPS and www-to-apex redirect behavior.
+- Old direct Apps Script request rejected after redeployment; separate obsolete deployments disabled.
+
+IMPORTANT:
+Offline PASS means source syntax and package consistency checks passed. It does not mean a live end-to-end or production acceptance test passed. Do not replace the current live deployment until backup and the above post-deployment checks are completed.

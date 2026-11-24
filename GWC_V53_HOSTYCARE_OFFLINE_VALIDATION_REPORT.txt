@@ -1,0 +1,8 @@
+GWC V53 — HOSTYCARE CPANEL PACKAGE AUDIT
+Base: GWC_V52_GOOGLE_CLOUD_RUN_READY.zip
+Change scope: Added HostyCare cPanel / Node.js deployment guide only.
+Application source changes: NONE.
+Preservation target: All files from V52 retained byte-for-byte.
+Validation: Original archive extracted successfully; package.json parsed; required package.json, server.js, index.html, public/index.html, Code.gs, worker.js and appsscript.json are present.
+Deployment status: Not deployed to the user's HostyCare account. Account-level Node.js availability and live backend integration remain to be confirmed by the user/hosting provider.
+Safety: Do not switch DNS or stop old hosting until login, Google sync, Drive upload and all critical workflows pass on the new host.

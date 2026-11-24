@@ -1,0 +1,22 @@
+GWC V56 — HOSTYCARE DOMAIN + GOOGLE APPS SCRIPT AUTH + PUBLISH VALIDATION
+
+Base: user-uploaded GWC_HOSTYCARE_DOMAIN_SECURE_V55.zip.
+Scope: deployment/security-only changes. Existing UI, account/login data, roles, student/course/fee workflows, database schema and business logic were not intentionally changed.
+
+Changes:
+- server.js: allow only the exact growthworldclasess.com hostname; require HTTPS same-origin Origin/Referer on /api routes; keep healthz for host checks.
+- server.js: require private GWC_API_SECRET environment variable and attach it only to server-to-server Apps Script calls.
+- Code.gs: require Script Properties GWC_API_SECRET for every GET and POST before any action; reject requests without matching secret.
+- index.html and public/index.html: remove embedded literal Apps Script deployment URL; frontend continues using same-origin /api/gwc.
+- worker.js: apply matching exact-apex hostname gate and private secret flow for optional Cloudflare deployment.
+- wrangler.toml: remove exposed Apps Script URL from committed configuration.
+- .env.example and HostyCare guide: document private configuration and deployment steps.
+
+Offline validation only. No live HostyCare account, DNS, SSL, Apps Script deployment, Google Sheets, Drive, login or end-to-end test was performed.
+Important: Apps Script Code.gs must be updated and the intended existing Web App deployment redeployed as a new version. Any separate obsolete Apps Script deployments must be disabled manually. Without that step, an old separate deployment URL can remain usable.
+
+V56 ADDITIONS:
+- index.html and public/index.html retain the existing app and switch the guarded remote-state polling from 30 minutes to 60 seconds. No forced full-page reload is used; the existing conflict guards avoid replacing local unsaved edits or open forms.
+- Admin action is labelled “Publish Now”; it writes the current state immediately to the existing authenticated Apps Script endpoint. Other open sessions detect it on their next 60-second poll (not zero-delay push; no WebSocket/push service exists in this package).
+- Host allowlist is now exact apex only: growthworldclasess.com. www and lookalike hostnames are denied; configure www as a redirect to the apex outside the app if needed.
+- Offline syntax/source validation only. No live hosting, DNS, Apps Script, Google Sheets, Drive, login or multi-browser test has been performed.
