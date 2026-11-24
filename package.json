@@ -4,7 +4,14 @@
   "private": true,
   "description": "Growth World Classes website with Google Apps Script proxy",
   "main": "server.js",
-  "scripts": {"start": "node server.js"},
-  "dependencies": {"express": "^4.21.2"},
-  "engines": {"node": ">=18"}
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "compression": "^1.7.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }

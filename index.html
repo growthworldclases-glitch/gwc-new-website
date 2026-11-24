@@ -175,7 +175,7 @@ else if(tab==='reports'){h=`<div class="dashhead"><div><h1>Reports & Audit</h1><
 r.innerHTML=h}
 function admissionTable(compact=false){return `<div class="tablewrap"><table><thead><tr><th>Student</th><th>Class / Mobile</th><th>Slip</th><th>Course</th><th>Actions</th></tr></thead><tbody>${state.students.filter(s=>!s.courseId).slice(0,compact?8:1000).map(s=>`<tr><td>${esc(s.name)}</td><td>Class ${esc(s.classNo)}<div class="small">${esc(s.mobile)}</div></td><td>${s.slip?`<button class="outline" onclick="viewSlip('${s.id}')">View Slip</button>`:'Not uploaded'}</td><td>${esc(state.courses.find(c=>c.id===s.requestedCourseId)?.title||'')}</td><td><div class="table-actions"><button class="primary" onclick="assignAdmission('${s.id}')">Verify & Assign</button><button class="outline" onclick="sendStudentWA('${s.id}')">WhatsApp</button></div></td></tr>`).join('')||'<tr><td colspan="5" class="muted">No pending admissions.</td></tr>'}</tbody></table></div>`}
 function courseForm(cid=''){let c=state.courses.find(x=>x.id===cid)||{title:'',classNo:'3',section:'A',subsection:'A-1',fee:'1099',subjects:'Science, Math, English',description:'',schedule:'',seats:'',razorpayLink:'',poster:'',displayed:false};modal(`<h3>${cid?'Edit':'Create'} Course</h3><form onsubmit="saveCourse(event,'${esc(cid)}')"><div class="formgrid"><div class="field full"><label>Course Title *</label><input name="title" value="${esc(c.title)}" required></div><div class="field"><label>Class *</label><select name="classNo">${Array.from({length:12},(_,i)=>`<option value="${i+1}" ${String(c.classNo)===String(i+1)?'selected':''}>Class ${i+1}</option>`).join('')}</select></div><div class="field"><label>Section *</label><input name="section" value="${esc(c.section)}" required></div><div class="field"><label>Subsection *</label><input name="subsection" value="${esc(c.subsection)}" required></div><div class="field"><label>Monthly Fee (₹) *</label><input name="fee" type="number" min="0" value="${esc(c.fee)}" required></div><div class="field"><label>Seats</label><input name="seats" value="${esc(c.seats||'')}"></div><div class="field full"><label>Course Poster (max 50KB)</label><input name="poster" type="file" accept="image/*"></div><div class="field full"><label>Description</label><textarea name="description">${esc(c.description)}</textarea></div><label class="field" style="display:flex;flex-direction:row;align-items:center;gap:8px"><input style="width:auto" type="checkbox" name="displayed" ${c.displayed?'checked':''}> Display in Course Store</label></div><button class="primary" style="width:100%;margin-top:15px">Save Course</button></form>`)}
-async function saveCourse(e,cid){e.preventDefault();let f=new FormData(e.target),old=state.courses.find(x=>x.id===cid),file=f.get('poster');try{let poster=file?.size?await readFile(file,50000):(old?.poster||'assets/gwc-promo-poster.jpeg');let c={id:cid||id(),title:String(f.get('title')).trim(),classNo:String(f.get('classNo')),section:String(f.get('section')).trim().toUpperCase(),subsection:String(f.get('subsection')).trim().toUpperCase(),fee:Number(f.get('fee')),seats:String(f.get('seats')||''),description:String(f.get('description')||''),classTime:String(f.get('classTime')||'').trim(),meetUrl:String(f.get('meetUrl')||'').trim(),razorpayLink:'',displayed:f.get('displayed')==='on',active:true,poster};if(old)Object.assign(old,c);else state.courses.push(c);log('COURSE_SAVED',c.title);save();closeModal();renderDashboard()}catch(err){alert(err.message)}}
+async function saveCourse(e,cid){e.preventDefault();let f=new FormData(e.target),old=state.courses.find(x=>x.id===cid),file=f.get('poster');try{let poster=file?.size?await readFile(file,50000):(old?.poster||'assets/gwc-promo-poster.jpeg');let c={id:cid||id(),title:String(f.get('title')).trim(),classNo:String(f.get('classNo')),section:String(f.get('section')).trim().toUpperCase(),subsection:String(f.get('subsection')).trim().toUpperCase(),fee:Number(f.get('fee')),seats:String(f.get('seats')||''),description:String(f.get('description')||''),classTimeStart:String(f.get('classTimeStart')||old?.classTimeStart||'').trim(),classTimeEnd:String(f.get('classTimeEnd')||old?.classTimeEnd||'').trim(),classTime:(String(f.get('classTimeStart')||old?.classTimeStart||'').trim()&&String(f.get('classTimeEnd')||old?.classTimeEnd||'').trim()?`${String(f.get('classTimeStart')||old?.classTimeStart).trim()}-${String(f.get('classTimeEnd')||old?.classTimeEnd).trim()}`:String(old?.classTime||old?.schedule||'').trim()),meetUrl:String(f.get('meetUrl')||'').trim(),razorpayLink:'',displayed:f.get('displayed')==='on',active:true,poster};if(old)Object.assign(old,c);else state.courses.push(c);log('COURSE_SAVED',c.title);save();closeModal();renderDashboard()}catch(err){alert(err.message)}}
 function toggleCourse(cid){let c=state.courses.find(x=>x.id===cid);if(c){if(c.sold){alert('SOLD course ko dobara display nahi kiya ja sakta.');return}c.displayed=!c.displayed;save();renderDashboard()}}
 function deleteCourse(cid){if(confirm('Delete course?')){state.courses=state.courses.filter(x=>x.id!==cid);save();renderDashboard()}}
 function teacherFor(cls,sec){return state.users.find(u=>u.role==='teacher'&&u.active!==false&&String(u.classNo)===String(cls)&&String(u.section).toUpperCase()===String(sec).toUpperCase())}
@@ -557,6 +557,8 @@ async function saveCourse(e,cid){
  try{
   let poster=file?.size?await readFile(file,50000):(old?.poster||'assets/gwc-promo-poster.jpeg');
   const teacherId=String(f.get('teacherId')||''),studentIds=f.getAll('studentIds').map(String);
+  const startTime=String(f.get('classTimeStart')||old?.classTimeStart||'').trim(),endTime=String(f.get('classTimeEnd')||old?.classTimeEnd||'').trim();
+  if((!old||old.sold!==true)&&(!startTime||!endTime||startTime>=endTime)){alert('Batch publish/sell karne se pehle valid Class Start aur End Time select karein.');return;}
   let c={...(old||{}),id:cid||id(),title:String(f.get('title')).trim(),classNo:String(f.get('classNo')),section:String(f.get('section')).trim().toUpperCase(),subsection:String(f.get('subsection')).trim().toUpperCase(),fee:Number(f.get('fee')),seats:String(f.get('seats')||''),description:String(f.get('description')||''),classTime:String(f.get('classTime')||'').trim(),meetUrl:String(f.get('meetUrl')||'').trim(),razorpayLink:'',displayed:f.get('displayed')==='on'&&!(old?.sold),active:true,poster,teacherId,studentIds};
   if(old){const removed=(old.studentIds||[]).filter(sid=>!studentIds.includes(sid));for(const sid of removed){const st=state.students.find(x=>x.id===sid);if(st&&st.courseId===old.id){const oldUserId=st.userId;st.courseId='';st.userId='';st.status='pending_review';if(oldUserId){const oldUser=state.users.find(u=>u.id===oldUserId);if(oldUser)oldUser.active=false}}}}
   if(old)Object.assign(old,c);else state.courses.push(c);
@@ -837,7 +839,7 @@ function courseForm(cid=''){
  <div class="field"><label>Default Monthly Fee (₹) *</label><input name="fee" type="number" min="0" value="${esc(c.fee)}" required></div><div class="field"><label>Discount Amount (₹)</label><input name="discountAmount" type="number" min="0" value="${esc(c.discountAmount||0)}"></div><div class="field"><label>Validity (days)</label><input name="validityDays" type="number" min="1" max="365" value="${esc(c.validityDays||30)}" required></div>
  <div class="field"><label>Payment Method</label><input value="Shared QR Photo" readonly></div>
  <div class="field"><label>Show Mode</label><select name="showMode"><option value="default" ${(c.showMode||'default')==='default'?'selected':''}>Default — Course Store</option><option value="customized" ${c.showMode==='customized'?'selected':''}>Customized — Assigned students only</option></select></div>
- <div class="field"><label>Class Time (e.g. 3:00-4:00 PM)</label><input name="classTime" value="${esc(c.classTime||c.schedule||'')}" placeholder="3:00-4:00 PM"></div><div class="field"><label>Course Google Meet URL (optional)</label><input name="meetUrl" type="url" value="${esc(c.meetUrl||'')}" placeholder="Leave blank to use teacher Meet URL"></div><div class="field full"><div class="notice">Payment ke liye Admin ke Shared QR Photo setting ka use hoga. Har course ke liye alag QR/link nahi chahiye.</div></div>
+ <div class="field"><label>Class Start Time *</label><input name="classTimeStart" type="time" value="${esc(c.classTimeStart||'')}" ${!cid&&!c.sold?'required':''}></div><div class="field"><label>Class End Time *</label><input name="classTimeEnd" type="time" value="${esc(c.classTimeEnd||'')}" ${!cid&&!c.sold?'required':''}></div><div class="field full"><small class="muted">Time mobile/PC ke clock picker se select karein. Student aur Teacher ko yahi time dikhega.</small></div><div class="field"><label>Course Google Meet URL (optional)</label><input name="meetUrl" type="url" value="${esc(c.meetUrl||'')}" placeholder="Leave blank to use teacher Meet URL"></div><div class="field full"><div class="notice">Payment ke liye Admin ke Shared QR Photo setting ka use hoga. Har course ke liye alag QR/link nahi chahiye.</div></div>
  <div class="field full"><label>Course Poster (max 50KB; blank keeps old poster)</label><input name="poster" type="file" accept="image/*"></div>
  <div class="field full"><label>Description</label><textarea name="description">${esc(c.description||'')}</textarea></div>
  <div class="field full"><label>Assign Teacher</label><select name="teacherId"><option value="">— Select teacher —</option>${teachers.map(t=>`<option value="${esc(t.id)}" ${c.teacherId===t.id?'selected':''}>${esc(t.name)} · Section ${esc(t.section||'-')}</option>`).join('')}</select></div>
@@ -850,7 +852,9 @@ async function saveCourse(e,cid){
  try{
   const poster=file?.size?await readFile(file,50000):(old?.poster||'assets/gwc-promo-poster.jpeg');
   const teacherId=String(f.get('teacherId')||''),studentIds=f.getAll('studentIds').map(String);
-  const c={...(old||{}),id:cid||id(),title:String(f.get('title')).trim(),classNo:String(f.get('classNo')),section:String(f.get('section')).trim().toUpperCase(),subsection:String(f.get('subsection')||'').trim().toUpperCase(),fee:Number(f.get('fee')),discountAmount:Number(f.get('discountAmount')||0),validityDays:Number(f.get('validityDays')||30),paymentMode:'qr',qrUrl:String(state.settings.defaultQrUrl||''),showMode:String(f.get('showMode')||'default'),seats:String(f.get('seats')||old?.seats||''),description:String(f.get('description')||''),classTime:String(f.get('classTime')||'').trim(),meetUrl:String(f.get('meetUrl')||'').trim(),razorpayLink:'',displayed:f.get('displayed')==='on'&&!(old?.sold),active:true,poster,teacherId,studentIds};
+  const timeStart=String(f.get('classTimeStart')||old?.classTimeStart||'').trim(),timeEnd=String(f.get('classTimeEnd')||old?.classTimeEnd||'').trim();
+  if((!old||old.sold!==true)&&(!timeStart||!timeEnd||timeStart>=timeEnd)){alert('Batch publish/sell karne se pehle valid Class Start aur End Time select karein.');return;}
+  const c={...(old||{}),id:cid||id(),title:String(f.get('title')).trim(),classNo:String(f.get('classNo')),section:String(f.get('section')).trim().toUpperCase(),subsection:String(f.get('subsection')||'').trim().toUpperCase(),fee:Number(f.get('fee')),discountAmount:Number(f.get('discountAmount')||0),validityDays:Number(f.get('validityDays')||30),classTimeStart:timeStart,classTimeEnd:timeEnd,classTime:(timeStart&&timeEnd?timeStart+'-'+timeEnd:String(old?.classTime||old?.schedule||'').trim()),paymentMode:'qr',qrUrl:String(state.settings.defaultQrUrl||''),showMode:String(f.get('showMode')||'default'),seats:String(f.get('seats')||old?.seats||''),description:String(f.get('description')||''),meetUrl:String(f.get('meetUrl')||'').trim(),razorpayLink:'',displayed:f.get('displayed')==='on'&&!(old?.sold),active:true,poster,teacherId,studentIds};
   if(old){for(const sid of (old.studentIds||[]).filter(x=>!studentIds.includes(x))){const st=state.students.find(x=>x.id===sid);if(st&&st.courseId===old.id){st.courseAccessActive=false;st.courseId='';st.status='pending_review';if(st.userId){const u=state.users.find(x=>x.id===st.userId);if(u)u.active=false;}}}}
   if(old)Object.assign(old,c);else state.courses.push(c);
   for(const sid of studentIds){const st=state.students.find(x=>x.id===sid);if(!st)continue;let u=state.users.find(x=>x.id===st.userId&&x.role==='student');if(!u){const cr=allocate('student');u={id:id(),role:'student',name:st.name,mobile:st.mobile,batch:c.subsection,classNo:c.classNo,section:c.section,username:cr.username,password:cr.password,active:true};state.users.push(u);st.userId=u.id;}Object.assign(u,{name:st.name,mobile:st.mobile,classNo:c.classNo,section:c.section,batch:c.subsection,active:true});st.courseId=c.id;st.requestedCourseId=c.id;st.status='active';if(!Array.isArray(st.feePeriods))st.feePeriods=[];if(!gwcCurrentPeriod(st)&&!st.activeUntil){st.courseAccessActive=false;}}
@@ -875,7 +879,7 @@ function gwcBulkCourseForm(){
  <div class="field"><label>Courses to generate (1–1000 per batch) *</label><input name="count" type="number" min="1" max="1000" value="10" required></div>
  <div class="field"><label>Section *</label><input name="section" value="A" required></div><div class="field"><label>Default Fee (₹) *</label><input name="fee" type="number" min="0" value="1099" required></div><div class="field"><label>Discount Amount (₹)</label><input name="discountAmount" type="number" min="0" value="0"></div>
  <div class="field full"><label>Course Title *</label><input name="title" value="Foundation Batch" required></div>
- <div class="field"><label>Subsection Prefix</label><input name="subsection" value="A" required></div><div class="field"><label>Validity days</label><input name="validityDays" type="number" min="1" max="365" value="30" required></div>
+ <div class="field"><label>Subsection Prefix</label><input name="subsection" value="A" required></div><div class="field"><label>Validity days</label><input name="validityDays" type="number" min="1" max="365" value="30" required></div><div class="field"><label>Class Start Time *</label><input name="classTimeStart" type="time" required></div><div class="field"><label>Class End Time *</label><input name="classTimeEnd" type="time" required></div>
  
  <div class="field full"><div class="notice">Payment mode: shared QR photo only.</div></div>
  
@@ -888,9 +892,10 @@ async function gwcBulkGenerate(e){
  e.preventDefault();const f=new FormData(e.target),count=Number(f.get('count')),cls=String(f.get('classNo'));
  if(!Number.isInteger(count)||count<1||count>1000){alert('Count 1 se 1000 ke beech hona chahiye.');return}
  try{
+  const timeFrom=String(f.get('classTimeStart')||''),timeTo=String(f.get('classTimeEnd')||'');if(!timeFrom||!timeTo||timeFrom>=timeTo){alert('Bulk batch banane se pehle valid Start aur End Time select karein.');return;}
   const file=f.get('poster'),poster=file?.size?await readFile(file,50000):'assets/gwc-promo-poster.jpeg';
   const n=gwcNextCourseNo(cls),section=String(f.get('section')).trim().toUpperCase(),fee=Number(f.get('fee'));
-  for(let i=0;i<count;i++){const no=n+i,code='GWC-'+no;state.courses.push({id:id(),inventoryCode:code,title:String(f.get('title')).trim()+' '+code,classNo:cls,section,subsection:String(f.get('subsection')).trim().toUpperCase()+'-'+String(no).padStart(2,'0'),fee,discountAmount:Number(f.get('discountAmount')||0),validityDays:Number(f.get('validityDays')||30),paymentMode:'qr',qrUrl:String(state.settings.defaultQrUrl||''),showMode:'default',seats:'',description:String(f.get('description')||''),subjects:'',razorpayLink:'',displayed:i===0,active:true,sold:false,teacherId:'',studentIds:[],poster,createdAt:new Date().toISOString()});}
+  for(let i=0;i<count;i++){const no=n+i,code='GWC-'+no;state.courses.push({id:id(),inventoryCode:code,title:String(f.get('title')).trim()+' '+code,classNo:cls,section,subsection:String(f.get('subsection')).trim().toUpperCase()+'-'+String(no).padStart(2,'0'),fee,discountAmount:Number(f.get('discountAmount')||0),validityDays:Number(f.get('validityDays')||30),classTimeStart:String(f.get('classTimeStart')||''),classTimeEnd:String(f.get('classTimeEnd')||''),classTime:String(f.get('classTimeStart')||'')+'-'+String(f.get('classTimeEnd')||''),paymentMode:'qr',qrUrl:String(state.settings.defaultQrUrl||''),showMode:'default',seats:'',description:String(f.get('description')||''),subjects:'',razorpayLink:'',displayed:i===0,active:true,sold:false,teacherId:'',studentIds:[],poster,createdAt:new Date().toISOString()});}
   log('BULK_COURSES_GENERATED',`Class ${cls}: ${count} courses (${n}–${n+count-1})`);
   save();closeModal();renderDashboard();
  }catch(err){alert(err.message||String(err))}
@@ -1502,7 +1507,7 @@ async function gwcV14RefreshRemote(){
   }catch(e){ console.warn('GWC live refresh:',e); }
   finally{gwcApplyingRemote=false;gwcV14Pulling=false;}
 }
-setInterval(()=>window.gwcV14RefreshRemote?.(),60000); /* V46: cross-portal cloud refresh once per minute */
+setInterval(()=>window.gwcV14RefreshRemote?.(),1800000); /* GWC V50: remote state refresh every 30 minutes */
 
 /* GWC V15 FIX — reliable save state + force-access precedence */
 let gwcV15SaveFailed=false;
@@ -2019,7 +2024,7 @@ renderStudent=function(r){
  };
  // Existing cloud sync polls shared state every five seconds. Refresh an open helpdesk view
  // after each pull so remote messages and readBy indicators become visible without reload.
- setInterval(()=>{try{const a=document.activeElement;if(tab==='whatsapphelp'&&a&&(a.closest('.gwcwa-compose')||a.closest('.gwcwa')||a.matches('textarea,input')))return;if(current&&tab==='whatsapphelp'){const r=document.getElementById('dashContent');if(r){const y=document.getElementById('gwcwa-chat')?.scrollTop||0;const h=document.getElementById('gwcwa-chat')?.scrollHeight||0;renderTab();const box=document.getElementById('gwcwa-chat');if(box)box.scrollTop=(y>=h-80?box.scrollHeight:y);}}}catch(e){}},60000); /* V46: Help Desk redraw every minute */
+ setInterval(()=>{try{const a=document.activeElement;if(tab==='whatsapphelp'&&a&&(a.closest('.gwcwa-compose')||a.closest('.gwcwa')||a.matches('textarea,input')))return;if(current&&tab==='whatsapphelp'){const r=document.getElementById('dashContent');if(r){const y=document.getElementById('gwcwa-chat')?.scrollTop||0;const h=document.getElementById('gwcwa-chat')?.scrollHeight||0;renderTab();const box=document.getElementById('gwcwa-chat');if(box)box.scrollTop=(y>=h-80?box.scrollHeight:y);}}}catch(e){}},1800000); /* GWC V50: Help Desk redraw every 30 minutes */
 })();
 </script>
 
@@ -2252,7 +2257,7 @@ const oldDashboard=renderDashboard;renderDashboard=function(){
   }
  }catch(e){console.warn('V29 dashboard',e);}
 };
-function start(){if(current){ping();refreshPresence();}setInterval(()=>{if(current){ping();refreshPresence();}},20000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&current)ping();});}
+function start(){if(current){ping();refreshPresence();}setInterval(()=>{if(current){ping();refreshPresence();}},1800000);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 const oldLogin=window.login;if(typeof oldLogin==='function')window.login=function(){const r=oldLogin.apply(this,arguments);setTimeout(()=>{ping();refreshPresence();},700);return r;};
 })();
@@ -2889,7 +2894,7 @@ const oldLogin=window.login;if(typeof oldLogin==='function')window.login=functio
      const feeButton=!active&&c?`<button class="primary" type="button" style="display:block;width:100%;min-height:48px;margin-top:12px" onclick="gwcOpenFeeFlow('${esc32(c.id)}','${esc32(st.id)}')">📷 Pay Fee by QR / Upload Slip</button>`:'';
      const t=teacherForCourse(c),meet=String(t?.meetUrl||c?.meetUrl||'').trim(),ym=monthKey(today()),rec=state.gwcMonthlyFees.find(x=>String(x.studentId)===String(st.id)&&x.month===ym);
      const d=s=>s?new Date(s+'T00:00:00').toLocaleDateString('en-GB'):'—';
-     r.innerHTML=`<div class="dashhead"><h1>🎓 My Course</h1></div><div class="panel"><h3>${esc32(c?.title||'Course not assigned')}</h3><p>Class ${esc32(c?.classNo||st.classNo||'')} · Section ${esc32(c?.section||'')} · Batch ${esc32(c?.subsection||'')}</p><p>Teacher: <b>${esc32(t?.name||'Not assigned')}</b></p><p>Monthly Student Fee: <b>${money(Number(st.studentFee??st.fee??c?.fee??0))}</b></p><p>Fee validity: <b>${esc32(d(period?String(period.startAt).slice(0,10):''))} – ${esc32(d(period?String(new Date(new Date(period.endAt).getTime()-86400000).toISOString()).slice(0,10):''))}</b></p>${active&&meet?`<button type="button" class="primary btn" style="display:inline-block;margin-top:8px;min-height:48px" onclick="gwcStudentJoinMeet('${esc32(meet)}')">Join My Class ↗</button>`:active?'<p class="notice">Fee valid hai, lekin Teacher ka Meet link update nahi hai.</p>':'<p class="notice error">Course access बंद है। QR से fee pay करके payment slip upload karein; Admin approval ke baad access resume hoga.</p>'}${feeButton}</div><div class="panel"><h3>📎 Monthly Fee Slip · ${esc32(ym)}</h3><p>${rec?.slipUrl?`<a target="_blank" rel="noopener" href="${esc32(rec.slipUrl)}">View attached slip</a>`:'No JPEG slip attached for this month.'}</p><form onsubmit="gwc32ParentSlip(event,'${esc32(st.id)}')"><label>Upload / Replace JPEG fee slip (max 1 MB)</label><input type="file" name="slip" accept="image/jpeg,.jpg,.jpeg" required><button class="primary" style="margin-top:8px">Attach fee slip</button></form></div>`;
+     r.innerHTML=`<div class="dashhead"><h1>🎓 My Course</h1></div><div class="panel"><h3>${esc32(c?.title||'Course not assigned')}</h3><p>Class ${esc32(c?.classNo||st.classNo||'')} · Section ${esc32(c?.section||'')} · Batch ${esc32(c?.subsection||'')}</p><p>Class Time: <b>${esc32(c?.classTimeStart&&c?.classTimeEnd?`${c.classTimeStart} – ${c.classTimeEnd}`:(c?.classTime||c?.schedule||'Admin ne abhi time set nahi kiya'))}</b></p><p>Teacher: <b>${esc32(t?.name||'Not assigned')}</b></p><p>Monthly Student Fee: <b>${money(Number(st.studentFee??st.fee??c?.fee??0))}</b></p><p>Fee validity: <b>${esc32(d(period?String(period.startAt).slice(0,10):''))} – ${esc32(d(period?String(new Date(new Date(period.endAt).getTime()-86400000).toISOString()).slice(0,10):''))}</b></p>${active&&meet?`<button type="button" class="primary btn" style="display:inline-block;margin-top:8px;min-height:48px" onclick="gwcStudentJoinMeet('${esc32(meet)}')">Join My Class ↗</button>`:active?'<p class="notice">Fee valid hai, lekin Teacher ka Meet link update nahi hai.</p>':'<p class="notice error">Course access बंद है। QR से fee pay करके payment slip upload karein; Admin approval ke baad access resume hoga.</p>'}${feeButton}</div><div class="panel"><h3>📎 Monthly Fee Slip · ${esc32(ym)}</h3><p>${rec?.slipUrl?`<a target="_blank" rel="noopener" href="${esc32(rec.slipUrl)}">View attached slip</a>`:'No JPEG slip attached for this month.'}</p><form onsubmit="gwc32ParentSlip(event,'${esc32(st.id)}')"><label>Upload / Replace JPEG fee slip (max 1 MB)</label><input type="file" name="slip" accept="image/jpeg,.jpg,.jpeg" required><button class="primary" style="margin-top:8px">Attach fee slip</button></form></div>`;
      return;
    }
    return oldStudent.apply(this,arguments);
@@ -4206,11 +4211,8 @@ button:active,.btn:active{transform:scale(.985)}
    if(gwcRemoteReady&&!lastSavedSnapshot){lastSavedSnapshot=safeSnapshot();lastRemoteSnapshot=lastSavedSnapshot;savedVersion=changeVersion;clearInterval(seedTimer);}
  },500);
  // When a tab returns to foreground, do one guarded check instead of waiting a full minute.
- document.addEventListener('visibilitychange',()=>{
-   if(document.visibilityState==='visible'&&gwcRemoteReady&&!saveInFlight&&!saveTimer){
-     setTimeout(()=>window.gwcV14RefreshRemote?.(),1200);
-   }
- });
+ // No foreground-triggered cloud pull. Cross-portal pulls run on the 30-minute cadence;
+ // Admin can publish local changes immediately with the explicit Admin Live Sync action.
 })();
 </script>
 
@@ -4265,5 +4267,76 @@ button:active,.btn:active{transform:scale(.985)}
      return priorRenderAdmin.apply(this,arguments);
    };
  }
+})();
+</script>
+
+
+<script>
+/* GWC V50 — Admin-controlled batch timings + 30-minute cloud pull.
+   Additive UI patch: keeps the existing Google Apps Script/Sheet backend and state schema. */
+(function(){
+ 'use strict';
+ const A=v=>Array.isArray(v)?v:[];
+ const esc=v=>(typeof window.esc==='function'?window.esc(v):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
+ window.gwcV50SaveClassTime=function(cid){
+   if(current?.role!=='admin')return;
+   const c=A(state?.courses).find(x=>String(x.id)===String(cid)); if(!c)return;
+   const from=document.getElementById('gwcV50From_'+cid)?.value||'';
+   const to=document.getElementById('gwcV50To_'+cid)?.value||'';
+   if(!from||!to){alert('Class ka Start Time aur End Time dono select karein.');return;}
+   if(from>=to){alert('End Time, Start Time ke baad hona chahiye.');return;}
+   c.classTimeStart=from;c.classTimeEnd=to;c.classTime=from+'-'+to;c.schedule=c.classTime;
+   if(typeof window.save==='function')window.save();
+   if(typeof window.renderDashboard==='function')window.renderDashboard();
+   if(typeof window.showSyncStatus==='function')window.showSyncStatus('Class timing saved locally · Admin Live Sync dabakar publish karein',true);
+ };
+ const priorMenu=window.menu;
+ if(typeof priorMenu==='function')window.menu=function(){
+   const items=priorMenu.apply(this,arguments);
+   if(current?.role==='admin'&&!items.some(x=>x[0]==='classtimes'))items.push(['classtimes','Class Timings']);
+   return items;
+ };
+ const priorAdmin=window.renderAdmin;
+ if(typeof priorAdmin==='function')window.renderAdmin=function(root){
+   if(current?.role==='admin'&&tab==='classtimes'){
+     const courses=A(state?.courses),users=A(state?.users);
+     root.innerHTML=`<div class="dashhead"><h1>Class Timings · Batch Wise</h1><p class="muted">Har Class / Section / Batch ka Start aur End Time clock picker se set karein. Sirf Admin edit kar sakta hai.</p></div>
+     <div class="panel"><div class="tablewrap"><table><thead><tr><th>Class / Section</th><th>Batch</th><th>Course</th><th>Start</th><th>End</th><th>Teacher</th><th>Save</th></tr></thead><tbody>
+     ${courses.map(c=>{const t=users.find(u=>String(u.id)===String(c.teacherId));return `<tr><td>${esc(c.classNo||'')} / ${esc(c.section||'')}</td><td>${esc(c.subsection||'—')}</td><td><b>${esc(c.title||'')}</b><br><small>${esc(c.classTime||c.schedule||'Time not set')}</small></td><td><input type="time" id="gwcV50From_${esc(c.id)}" value="${esc(c.classTimeStart||'')}" aria-label="Start time for ${esc(c.title)}"></td><td><input type="time" id="gwcV50To_${esc(c.id)}" value="${esc(c.classTimeEnd||'')}" aria-label="End time for ${esc(c.title)}"></td><td>${esc(t?.name||'Not assigned')}</td><td><button type="button" class="primary" onclick="gwcV50SaveClassTime('${esc(c.id)}')">Save Time</button></td></tr>`}).join('')||'<tr><td colspan="7">No courses created yet.</td></tr>'}
+     </tbody></table></div><p class="small muted">New course / bulk batch create karte waqt bhi Start aur End Time required hai. Existing students ko time My Course mein dikhega jab woh cloud sync/refresh karenge.</p></div>`;
+     return;
+   }
+   return priorAdmin.apply(this,arguments);
+ };
+ // Explicit Admin-only publish action. It writes the current shared state to the existing
+ // Apps Script backend. Other open portals retrieve it on their next 30-minute refresh.
+ window.gwcV50AdminLiveSync=async function(btn){
+   if(current?.role!=='admin'){alert('Live Sync sirf Admin kar sakta hai.');return;}
+   if(btn){btn.disabled=true;btn.textContent='Publishing…';}
+   try{
+     state.gwcAdminLiveSyncAt=new Date().toISOString();
+     const result=await window.googleApi({action:'save',state:state});
+     if(!result||result.ok===false)throw new Error(result?.error||'Google Sheet save failed');
+     if(typeof window.showSyncStatus==='function')window.showSyncStatus('Admin Live Sync published to Google Sheets · other portals refresh within 30 minutes',true);
+     if(btn)btn.textContent='✓ Live Sync Published';
+   }catch(e){
+     if(typeof window.showSyncStatus==='function')window.showSyncStatus('Live Sync failed · '+(e.message||e),false);
+     alert('Live Sync fail hua: '+(e.message||e));
+     if(btn)btn.textContent='Admin Live Sync';
+   }finally{if(btn)setTimeout(()=>{btn.disabled=false;btn.textContent='Admin Live Sync';},2500);}
+ };
+ const priorDashboard=window.renderDashboard;
+ if(typeof priorDashboard==='function')window.renderDashboard=function(){
+   const out=priorDashboard.apply(this,arguments);
+   try{
+     const badge=document.getElementById('gwcSyncBadge');
+     if(!badge)return out;
+     let b=document.getElementById('gwcAdminLiveSyncBtn');
+     if(current?.role==='admin'){
+       if(!b){b=document.createElement('button');b.id='gwcAdminLiveSyncBtn';b.type='button';b.className='primary';b.style.cssText='padding:6px 9px;font-size:12px;white-space:nowrap';b.textContent='Admin Live Sync';b.onclick=()=>window.gwcV50AdminLiveSync(b);badge.appendChild(b);}
+     }else if(b)b.remove();
+   }catch(e){console.warn('GWC V50 sync button:',e);}
+   return out;
+ };
 })();
 </script>
