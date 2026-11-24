@@ -1,0 +1,16 @@
+GWC V55 — HOSTYCARE DOMAIN + GOOGLE APPS SCRIPT AUTH VALIDATION
+
+Base: user-uploaded GWC_HOSTYCARE_DOMAIN_SECURE_V54.zip.
+Scope: deployment/security-only changes. Existing UI, account/login data, roles, student/course/fee workflows, database schema and business logic were not intentionally changed.
+
+Changes:
+- server.js: allow only growthworldclasess.com and www.growthworldclasess.com; require same-origin Origin/Referer on /api routes; keep healthz for host checks.
+- server.js: require private GWC_API_SECRET environment variable and attach it only to server-to-server Apps Script calls.
+- Code.gs: require Script Properties GWC_API_SECRET for every GET and POST before any action; reject requests without matching secret.
+- index.html and public/index.html: remove embedded literal Apps Script deployment URL; frontend continues using same-origin /api/gwc.
+- worker.js: apply matching hostname gate and private secret flow for optional Cloudflare deployment.
+- wrangler.toml: remove exposed Apps Script URL from committed configuration.
+- .env.example and HostyCare guide: document private configuration and deployment steps.
+
+Offline validation only. No live HostyCare account, DNS, SSL, Apps Script deployment, Google Sheets, Drive, login or end-to-end test was performed.
+Important: Apps Script Code.gs must be updated and the intended existing Web App deployment redeployed as a new version. Any separate obsolete Apps Script deployments must be disabled manually. Without that step, an old separate deployment URL can remain usable.

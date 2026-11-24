@@ -1,0 +1,25 @@
+GWC V38 STATIC TEST REPORT
+
+PASS: ZIP integrity check (unzip -t).
+PASS: index.html script blocks parsed with Node.js --check (after extraction).
+PASS: server.js parsed with Node.js --check.
+PASS: Code.gs copied to a temporary .js file and parsed with Node.js --check.
+PASS: package.json valid JSON.
+PASS: appsscript.json valid JSON.
+PASS: server.js, Code.gs, package.json and appsscript.json are byte-for-byte identical to GWC_V33_5_QR_PAUSE_FIX.zip.
+PASS: Student Join My Class invokes gwcStudentJoinMeet and uses Google AccountChooser continue URL.
+PASS: Teacher join handler remains the prior handler; account chooser patch is only wired from student My Course UI.
+PASS: Parents Feedback monthly interval and monthly due-date calculation retained.
+PASS: Teacher Assigned Students header is Last Date of Class; class validity date source is not fee paid date.
+PASS: Dashboard message panel displays one latest message and View All opens full message bodies and available attachment links.
+PASS: Dashboard no longer renders the previous hidden/archive dashboard panels; underlying Help Desk records are retained.
+
+NOT LIVE-VERIFIED:
+- Actual Admin/Teacher/Subadmin/Student login against live Apps Script and records.
+- Google Sheets/Drive persistence, backups, restore, uploads and downloads.
+- Google AccountChooser -> Meet handoff on Android Chrome/Meet app and desktop browser.
+- Real host admission/meeting entry.
+- External WhatsApp API group membership automation.
+- Render deployment and full regression testing on owner infrastructure.
+
+Static tests do not establish production readiness. Stage and test with real role accounts and devices before production deployment.

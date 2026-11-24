@@ -1,0 +1,29 @@
+GWC V56 — HOSTINGER NODE.JS + 30-SECOND SHARED-PORTAL REFRESH
+
+Base: user-provided GWC_HOSTYCARE_DOMAIN_SECURE_V55.zip.
+Scope: deployment guide correction and requested publish/refresh cadence only.
+
+Changes:
+- Kept the existing V55 Hostinger-compatible Node.js/Express server structure, API proxy,
+  domain allowlist, Apps Script secret authentication, existing UI and business features.
+- Changed the shared remote-state polling interval from 30 minutes to 30 seconds.
+- Updated Admin Live Sync success text to say other portals check within 30 seconds.
+- Kept the existing safety guards that avoid remote overwrite while a local save is pending
+  or a user is actively editing a form.
+- Added HOSTINGER_NODEJS_DEPLOY_GUIDE_HINDI_V56.txt; old files retained.
+
+Validation:
+- package.json JSON parse and npm dependency/start declarations checked.
+- server.js and worker.js Node syntax checked.
+- HTML inline scripts syntax checked individually where parsable.
+- ZIP structure and root/public index equality checked.
+- No live Hostinger, DNS, SSL, Apps Script, Google Sheets, Drive or credential testing.
+- 30-second polling is near-real-time, not guaranteed zero-delay push. Active forms/unsaved
+  local edits intentionally defer remote state application to prevent data loss.
+
+Critical:
+- server.js currently permits only growthworldclasess.com and www.growthworldclasess.com.
+  If your actual Hostinger domain is different, update the allowlist before deployment.
+- Hostinger plan must expose Node.js application hosting. PHP-only/static hosting is insufficient.
+- Update Code.gs and redeploy the existing Apps Script Web App as a new version, with the
+  same GWC_API_SECRET in Script Properties and Hostinger environment variables.

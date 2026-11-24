@@ -1,0 +1,87 @@
+GROWTH WORLD CLASSES — HOSTINGER NODE.JS DEPLOYMENT GUIDE (V56)
+
+COMPATIBILITY — PLEASE CHECK BEFORE DEPLOYING
+This ZIP is a Node.js + Express application, not a PHP-only static website package.
+Deploy it only if the Hostinger plan/hPanel account exposes a Node.js application feature
+(or a supported Node.js hosting product). A normal shared-hosting plan without Node.js
+support cannot run server.js. Do not upload the ZIP into public_html and expect it to run.
+
+REQUIRED FILES
+- package.json: npm start and dependencies
+- server.js: Express entry point, domain allowlist and private Google Apps Script proxy
+- public/index.html: website served by Node.js; root index.html is kept as a matching copy
+- Code.gs + appsscript.json: Google Apps Script backend source/manifest (not run by Node.js)
+- .env.example: names/placeholders only; never put real secrets in the ZIP
+- worker.js/wrangler.toml: optional Cloudflare deployment files; not required for Hostinger Node.js
+
+BEFORE YOU START
+1. Back up this ZIP, GitHub repository, Google Sheet, Drive folder and Apps Script project.
+2. Confirm your final domain is exactly growthworldclasess.com (and optionally www.growthworldclasess.com).
+   server.js currently permits only these two hostnames. If your actual domain differs, stop and
+   request a domain-specific build before DNS cutover; otherwise the site will return 403.
+3. In hPanel, confirm Node.js application hosting is available for your exact plan/region.
+   Hostinger UI labels and supported Node versions can vary. Choose Node.js 20 or the newest
+   supported LTS (minimum 18), application mode Production, startup file server.js.
+4. Create the Node.js app with the application root outside public_html where possible.
+   Upload/extract this ZIP so package.json and server.js are directly in the application root.
+5. Run the panel's NPM Install / Install Dependencies action.
+6. Add environment variables in the Node.js app configuration:
+   GWC_API_URL = full URL of the existing Google Apps Script Web App ending in /exec
+   GWC_API_SECRET = a random secret of at least 32 characters (64 hex characters recommended)
+   Generate on a trusted terminal with: openssl rand -hex 32
+   Do not paste the secret into HTML, GitHub, this ZIP, screenshots or browser code.
+7. In the existing Google Apps Script project, open Project Settings > Script Properties.
+   Add GWC_API_SECRET with exactly the same value as the Hostinger environment variable.
+8. Update the existing Apps Script project's Code.gs with the Code.gs from this ZIP.
+   Preserve the existing project properties such as GWC_SPREADSHEET_ID and
+   GWC_DRIVE_FOLDER_ID; do not delete other project files or functions.
+9. Deploy > Manage deployments > edit the existing Web App deployment > New version.
+   Keep Execute as Me and access Anyone. Keep the existing deployment URL/ID if possible;
+   it must match GWC_API_URL. Save/deploy.
+10. In hPanel, save/apply environment variables and restart/redeploy the Node.js application.
+11. Point both apex and www DNS records to the Hostinger target shown in hPanel, enable SSL,
+    and configure www/apex redirection consistently. DNS propagation may take time.
+12. Test https://YOUR-DOMAIN/healthz first, then login and data flows.
+
+DOMAIN GATE
+server.js allows only growthworldclasess.com and www.growthworldclasess.com. Hostinger preview
+URLs and temporary hostnames will be blocked by design. Do not broaden the allowlist publicly
+without an explicit decision. If your purchased domain is not the exact domain above, this ZIP
+needs a small domain configuration update before deployment.
+
+V56 PUBLISH / REFRESH BEHAVIOUR
+- Admin Live Sync immediately sends the current state to the existing Apps Script backend.
+- Other open portals poll the shared state every 30 seconds, then apply a changed state and
+  redraw the portal. If no admin publish/save occurs, the 30-second check still runs but no
+  changed state is downloaded/applied.
+- This is near-real-time polling, not a push/WebSocket channel. A change can appear after the
+  next poll (up to about 30 seconds plus network/Apps Script processing time). No hosting stack
+  can honestly guarantee zero delay using Apps Script polling.
+- Polling is guarded while a user is editing a form or local unsaved changes exist, to avoid
+  overwriting in-progress work. In those cases refresh waits until the guard clears.
+- Admin Live Sync only confirms success after the Apps Script save responds successfully.
+
+SECURITY / OPERATIONS
+- API secrets stay on the Node server and Apps Script Script Properties; never expose them in HTML.
+- The Node server checks the hostname and browser same-origin headers. This is not a replacement
+  for role-based authorization, rate limiting or abuse monitoring.
+- Apps Script Web App access remains Anyone because the Node server calls it server-to-server;
+  the shared secret is checked in Code.gs before API actions.
+- If the secret leaks, rotate it in both Hostinger environment and Apps Script properties.
+- Disable/archive obsolete separate Apps Script deployments only after the new endpoint is tested.
+  A new ZIP cannot revoke a different old deployment automatically.
+
+POST-DEPLOYMENT CHECKLIST
+- /healthz returns JSON with ok:true.
+- Test Admin, Subadmin, Teacher and Student login using existing credentials.
+- Check students, teachers, courses, batches, fees, homework, tests, doubts, Help Desk and Drive uploads.
+- Admin makes a harmless test edit and presses Admin Live Sync; verify success.
+- Keep a second logged-in portal open and verify it reflects the published change on its next
+  30-second check (unless that portal is actively editing a form).
+- Confirm an unauthorized hostname gets 403.
+- Do not cancel old hosting or change DNS until all checks pass.
+
+IMPORTANT LIMIT
+This ZIP can be source-validated offline only. It has not been deployed to your Hostinger account,
+and live DNS, SSL, Google Sheets, Drive, login credentials and Apps Script services cannot be
+tested from this file alone. Hostinger Node.js availability depends on your exact plan/account.
